@@ -93,12 +93,6 @@ module Video2gif
         options[:cropdetect] = c || 24
       end
 
-      parser.on('-o',
-                '--[no-]optimize',
-                'Attempt to optimize GIF size with ImageMagick (default yes if available)') do |o|
-        options[:optimize] = o
-      end
-
       parser.on('--contrast CONTRAST',
                 'Apply contrast adjustment, scaled from -2.0 to 2.0 (default 1)') do |c|
         options[:contrast] = c
@@ -239,12 +233,6 @@ module Video2gif
       exit
     end
 
-    if !is_executable?('convert') && options[:optimize]
-      logger.warn('ImageMagick isn\'t available! Optimization will be'\
-                  ' disabled!') unless options[:quiet]
-      options[:optimize] = false
-    end
-
     options
   end
 
@@ -366,22 +354,12 @@ module Video2gif
     command << '-filter_complex' << build_filter_complex(options)
     command << '-f' << 'gif'
 
-    # if we're not optimizing, we won't send to stdout
-    command << (options[:optimize] ? '-' : build_output_filename(args))
 
     logger.info(command.join(' ')) if options[:verbose] unless options[:quiet]
 
     command
   end
 
-  def self.build_convert_optimize_command(args, options, logger)
-    command = []
-    command << 'convert' << '-' << '-layers' << 'Optimize' << build_output_filename(args)
-
-    logger.info(command.join(' ')) if options[:verbose] unless options[:quiet]
-
-    command
-  end
 
   def self.build_ffmpeg_cropdetect_command(args, options, logger)
     command = []
@@ -419,7 +397,6 @@ module Video2gif
     end
 
     gif_pipeline_items = [build_ffmpeg_gif_command(ARGV, options, logger)]
-    gif_pipeline_items << build_convert_optimize_command(ARGV, options, logger) if options[:optimize]
 
     read_io, write_io = IO.pipe
     Open3.pipeline_start(*gif_pipeline_items, out: write_io, err: write_io) do |threads|

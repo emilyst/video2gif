@@ -3,10 +3,10 @@ video2gif
 
 `video2gif` eases converting any video into a GIF.
 
-It uses [FFMpeg] and optionally [ImageMagick], so it understands any
-video that [FFMpeg] does. It has an array of options to allow you to
-select the part of the video you want, crop it automatically, overlay
-text, and manipulate the color and brightness.
+It uses [FFMpeg], so it understands any video that [FFMpeg] does. It has
+an array of options to allow you to select the part of the video you
+want, crop it automatically, overlay text, and manipulate the color and
+brightness.
 
 
 Installation
@@ -16,9 +16,6 @@ Installation
 available in the system `$PATH`. If you can run `ffmpeg` from the
 command line, you're probably good. If not, use your favorite package
 manager to install it.
-
-If you install [ImageMagick], further optimization will automatically
-take place on the resulting GIF.
 
 Note that some features may not be available by default. For example,
 tonemapping (used for HDR videos) requires `libzimg` support, not
