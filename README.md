@@ -1,39 +1,63 @@
-# Video2gif
+video2gif
+=========
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/video2gif`. To experiment with that code, run `bin/console` for an interactive prompt.
+`video2gif` eases converting any video into a GIF.
 
-TODO: Delete this and the text above, and describe your gem
+It uses [FFMpeg] and optionally [ImageMagick], so it understands any
+video that [FFMpeg] does. It has an array of options to allow you to
+select the part of the video you want, crop it automatically, overlay
+text, and manipulate the color and brightness.
 
-## Installation
 
-Add this line to your application's Gemfile:
+Installation
+------------
 
-```ruby
-gem 'video2gif'
-```
+`video2gif` requires a recent version of [FFMpeg] installed and
+available in the system `$PATH`. If you can run `ffmpeg` from the
+command line, you're probably good. If not, use your favorite package
+manager to install it.
 
-And then execute:
+If you install [ImageMagick], further optimization will automatically
+take place on the resulting GIF.
 
-    $ bundle
+Note that some features may not be available by default. For example,
+tonemapping (used for HDR videos) requires `libzimg` support, not
+included by default in the [FFMpeg] supplied by [Homebrew].
 
-Or install it yourself as:
+`video2gif` also requires Ruby and the ability to install a new gem. If
+you have this available, run the following command to install it.
 
-    $ gem install video2gif
+    gem install video2gif
 
-## Usage
 
-TODO: Write usage instructions here
+Usage
+-----
 
-## Development
+The general syntax for the command follows.
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+    video2gif <input video> [-o <output filename>] [<options>]
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+Use `video2gif --help` to see all the options available. Given an input
+video, `video2gif` has a reasonable set of defaults to output a GIF of
+the same size and with the same name in the same directory. However,
+using the options available, you can change the output filename and the
+appearance of the resulting GIF.
 
-## Contributing
+_Further documentation to come._
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/video2gif.
 
-## License
+License
+-------
 
-The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+This gem is released into the public domain (CC0 license). For details,
+see: https://creativecommons.org/publicdomain/zero/1.0/legalcode
+
+
+Contributing
+------------
+
+To contribute to this plugin, find it on GitHub. Please see the
+[CONTRIBUTING](CONTRIBUTING.markdown) file accompanying it for
+guidelines.
+
+https://github.com/emilyst/video2gif
