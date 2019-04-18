@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require "video2gif/version"
 
 module Video2gif

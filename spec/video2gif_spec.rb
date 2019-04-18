@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe Video2gif do
   it "has a version number" do
     expect(Video2gif::VERSION).not_to be nil
