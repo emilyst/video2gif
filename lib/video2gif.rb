@@ -263,17 +263,15 @@ module Video2gif
                         end
     eq_filter         = if options[:eq]
                           'eq=' + %W[
-                            contrast=#{options[:contrast] || 1}
-                            brightness=#{options[:brightness] || 0}
-                            saturation=#{options[:saturation] || 1}
-                            gamma=#{options[:gamma] || 1}
-                            gamma_r=#{options[:gamma_r] || 1}
-                            gamma_g=#{options[:gamma_g] || 1}
-                            gamma_b=#{options[:gamma_b] || 1}
+                            contrast=#{ options[:contrast] || 1 }
+                            brightness=#{ options[:brightness] || 0 }
+                            saturation=#{ options[:saturation] || 1 }
+                            gamma=#{ options[:gamma] || 1 }
+                            gamma_r=#{ options[:gamma_r] || 1 }
+                            gamma_g=#{ options[:gamma_g] || 1 }
+                            gamma_b=#{ options[:gamma_b] || 1 }
                           ].join(':')
                         end
-    palettegen_filter = "palettegen=max_colors=#{palette_size}:stats_mode=diff"
-    paletteuse_filter = 'paletteuse=dither=sierra2_4a:diff_mode=rectangle'
     palettegen_filter = "palettegen=#{max_colors}stats_mode=diff"
     paletteuse_filter = 'paletteuse=dither=floyd_steinberg:diff_mode=rectangle'
     drawtext_filter   = if options[:text]
@@ -311,10 +309,10 @@ module Video2gif
     # before applying the palettegen so that we accurately predict the
     # final palette
     filter_complex << fps_filter
-    filter_complex << crop_filter if crop_filter
-    filter_complex << scale_filter if options[:width] unless options[:tonemap]
+    filter_complex << crop_filter     if crop_filter
+    filter_complex << scale_filter    if options[:width] unless options[:tonemap]
     filter_complex << tonemap_filters if options[:tonemap]
-    filter_complex << eq_filter if options[:eq]
+    filter_complex << eq_filter       if options[:eq]
     filter_complex << drawtext_filter if options[:text]
 
     # then generate the palette (and label this filter stream)
@@ -326,10 +324,10 @@ module Video2gif
     # affected by scaling)
     filter_complex << '[0:v][palette]' + paletteuse_filter
     filter_complex << fps_filter
-    filter_complex << crop_filter if crop_filter
-    filter_complex << scale_filter if options[:width] unless options[:tonemap]
+    filter_complex << crop_filter     if crop_filter
+    filter_complex << scale_filter    if options[:width] unless options[:tonemap]
     filter_complex << tonemap_filters if options[:tonemap]
-    filter_complex << eq_filter if options[:eq]
+    filter_complex << eq_filter       if options[:eq]
     filter_complex << drawtext_filter if options[:text]
 
     filter_complex.join(',')
@@ -339,33 +337,12 @@ module Video2gif
     if args[1]
       args[1].end_with?('.gif') ? args[1] : args[1] + '.gif'
     else
-      File.join(File.dirname(args[0]),
-                File.basename(args[0], '.*') + '.gif')
+      File.join(File.dirname(args[0]), File.basename(args[0], '.*') + '.gif')
     end
   end
 
-  def self.build_ffmpeg_gif_command(args, options, logger)
-    command = []
-    command << 'ffmpeg'
-    command << '-y'  # always overwrite
-    command << '-analyzeduration' << '2147483647' << '-probesize' << '2147483647'
-    command << '-nostdin'
-    command << '-ss' << options[:seek] if options[:seek]
-    command << '-t' << options[:time] if options[:time]
-    command << '-i' << args[0]
-    command << '-filter_complex' << build_filter_complex(options)
-    command << '-f' << 'gif'
-
-
-    logger.info(command.join(' ')) if options[:verbose] unless options[:quiet]
-
-    command
-  end
-
-
   def self.build_ffmpeg_cropdetect_command(args, options, logger)
-    command = []
-    command << 'ffmpeg'
+    command = ['ffmpeg']
     command << '-analyzeduration' << '2147483647' << '-probesize' << '2147483647'
     command << '-nostdin'
     command << '-ss' << options[:seek] if options[:seek]
@@ -380,12 +357,30 @@ module Video2gif
     command
   end
 
+  def self.build_ffmpeg_gif_command(args, options, logger)
+    command = ['ffmpeg']
+    command << '-y'  # always overwrite
+    command << '-analyzeduration' << '2147483647' << '-probesize' << '2147483647'
+    command << '-nostdin'
+    command << '-ss' << options[:seek] if options[:seek]
+    command << '-t' << options[:time] if options[:time]
+    command << '-i' << args[0]
+    command << '-filter_complex' << build_filter_complex(options)
+    command << '-gifflags' << '+transdiff'  # enabled by default
+    command << '-f' << 'gif'
+    command << build_output_filename(args)
+
+    logger.info(command.join(' ')) if options[:verbose] unless options[:quiet]
+
+    command
+  end
+
   def self.run
     logger = Logger.new(STDOUT)
     options = parse_args(ARGV, logger)
 
     if options[:cropdetect]
-      Open3.popen3(*build_ffmpeg_cropdetect_command(ARGV, options, logger)) do |stdin, stdout, stderr, wait_thr|
+      Open3.popen3(*build_ffmpeg_cropdetect_command(ARGV, options, logger)) do |stdin, stdout, stderr, thread|
         stdin.close
         stdout.close
         stderr.each(chomp: true) do |line|
@@ -394,25 +389,19 @@ module Video2gif
         end
         stderr.close
 
-        raise "Process #{wait_thr.pid} failed! Try again with --verbose to see error." unless wait_thr.value.success?
+        raise "Process #{thread.pid} failed! Try again with --verbose to see error." unless thread.value.success?
       end
     end
 
-    gif_pipeline_items = [build_ffmpeg_gif_command(ARGV, options, logger)]
-
-    read_io, write_io = IO.pipe
-    Open3.pipeline_start(*gif_pipeline_items, out: write_io, err: write_io) do |threads|
-      write_io.close
-      if options[:verbose]
-        read_io.each(chomp: true) { |line| logger.info(line) unless options[:quiet] }
-      else
-        read_io.read(1024) until read_io.eof?
+    Open3.popen3(*build_ffmpeg_gif_command(ARGV, options, logger)) do |stdin, stdout, stderr, thread|
+      stdin.close
+      stdout.close
+      stderr.each(chomp: true) do |line|
+        logger.info(line) if options[:verbose] unless options[:quiet]
       end
-      read_io.close
+      stderr.close
 
-      threads.each do |t|
-        raise "Process #{t.pid} failed! Try again with --verbose to see error." unless t.value.success?
-      end
+      raise "Process #{thread.pid} failed! Try again with --verbose to see error." unless thread.value.success?
     end
   end
 end
