@@ -1,3 +1,5 @@
 #!/usr/bin/env ruby
 
 require 'video2gif'
+
+Video2gif.run
