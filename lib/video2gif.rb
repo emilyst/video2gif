@@ -237,9 +237,9 @@ module Video2gif
   end
 
   def self.build_filter_complex(options)
-    fps          = options[:fps]     || 15
-    palette_size = options[:palette] || 256
-    width        = options[:width]   # default is not to scale at all
+    fps        = options[:fps]     || 15
+    max_colors = options[:palette] ? "max_colors=#{options[:palette]}:" : ''
+    width      = options[:width]   # default is not to scale at all
 
     # create filter elements
     fps_filter        = "fps=#{fps}"
@@ -274,6 +274,8 @@ module Video2gif
                         end
     palettegen_filter = "palettegen=max_colors=#{palette_size}:stats_mode=diff"
     paletteuse_filter = 'paletteuse=dither=sierra2_4a:diff_mode=rectangle'
+    palettegen_filter = "palettegen=#{max_colors}stats_mode=diff"
+    paletteuse_filter = 'paletteuse=dither=floyd_steinberg:diff_mode=rectangle'
     drawtext_filter   = if options[:text]
                           count_of_lines = options[:text].scan(/\\n/).count + 1
 
