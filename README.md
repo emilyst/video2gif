@@ -32,7 +32,7 @@ Usage
 
 The general syntax for the command follows.
 
-    video2gif <input video> [-o <output filename>] [<options>]
+    video2gif <input video> [<output filename>] [<options>]
 
 Use `video2gif --help` to see all the options available. Given an input
 video, `video2gif` has a reasonable set of defaults to output a GIF of
