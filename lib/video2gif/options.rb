@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require 'optparse'
-require 'video2gif/utils'
-require 'video2gif/version'
+require 'video2gif'
 
 
 module Video2gif

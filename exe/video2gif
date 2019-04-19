@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'video2gif/cli'
+require 'video2gif'
 
 
 Video2gif::CLI.start

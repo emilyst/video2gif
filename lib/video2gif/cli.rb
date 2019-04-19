@@ -2,8 +2,7 @@
 
 require 'logger'
 require 'open3'
-require 'video2gif/ffmpeg'
-require 'video2gif/options'
+require 'video2gif'
 
 
 module Video2gif
