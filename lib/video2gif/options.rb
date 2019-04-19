@@ -11,7 +11,12 @@ module Video2gif
       options = {}
 
       parser = OptionParser.new do |parser|
-        parser.banner = 'Usage: video2gif <video> [<output GIF filename>] [options]'
+        parser.banner = <<~BANNER
+          video2gif #{Video2gif::VERSION}
+
+          Usage: video2gif <video> [<output GIF filename>] [options]
+        BANNER
+
         parser.separator ''
         parser.separator 'General GIF options:'
 
