@@ -100,21 +100,13 @@ module Video2gif
       filter_complex.join(',')
     end
 
-    def self.output_filename(args)
-      if args[1]
-        args[1].end_with?('.gif') ? args[1] : args[1] + '.gif'
-      else
-        File.join(File.dirname(args[0]), File.basename(args[0], '.*') + '.gif')
-      end
-    end
-
-    def self.cropdetect_command(args, options, logger)
+    def self.cropdetect_command(options, logger)
       command = ['ffmpeg']
       command << '-analyzeduration' << '2147483647' << '-probesize' << '2147483647'
       command << '-nostdin'
       command << '-ss' << options[:seek] if options[:seek]
       command << '-t' << options[:time] if options[:time]
-      command << '-i' << args[0]
+      command << '-i' << options[:input_filename]
       command << '-filter_complex' << "cropdetect=limit=#{options[:cropdetect]}"
       command << '-f' << 'null'
       command << '-'
@@ -124,18 +116,18 @@ module Video2gif
       command
     end
 
-    def self.gif_command(args, options, logger)
+    def self.gif_command(options, logger)
       command = ['ffmpeg']
       command << '-y'  # always overwrite
       command << '-analyzeduration' << '2147483647' << '-probesize' << '2147483647'
       command << '-nostdin'
       command << '-ss' << options[:seek] if options[:seek]
       command << '-t' << options[:time] if options[:time]
-      command << '-i' << args[0]
+      command << '-i' << options[:input_filename]
       command << '-filter_complex' << filter_complex(options)
       command << '-gifflags' << '+transdiff'  # enabled by default
       command << '-f' << 'gif'
-      command << output_filename(args)
+      command << options[:output_filename]
 
       logger.info(command.join(' ')) if options[:verbose] unless options[:quiet]
 

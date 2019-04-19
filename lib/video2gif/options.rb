@@ -224,6 +224,14 @@ module Video2gif
         exit
       end
 
+      options[:input_filename] = args[0]
+      options[:output_filename] = if args[1]
+                                    args[1].end_with?('.gif') ? args[1] : args[1] + '.gif'
+                                  else
+                                    File.join(File.dirname(args[0]),
+                                              File.basename(args[0], '.*') + '.gif')
+                                  end
+
       options
     end
   end

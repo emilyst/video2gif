@@ -13,7 +13,7 @@ module Video2gif
       options = Video2gif::Options.parse(ARGV)
 
       if options[:cropdetect]
-        Open3.popen3(*Video2gif::FFMpeg.cropdetect_command(ARGV, options, logger)) do |stdin, stdout, stderr, thread|
+        Open3.popen3(*Video2gif::FFMpeg.cropdetect_command(options, logger)) do |stdin, stdout, stderr, thread|
           stdin.close
           stdout.close
           stderr.each(chomp: true) do |line|
@@ -30,7 +30,7 @@ module Video2gif
         end
       end
 
-      Open3.popen3(*Video2gif::FFMpeg.gif_command(ARGV, options, logger)) do |stdin, stdout, stderr, thread|
+      Open3.popen3(*Video2gif::FFMpeg.gif_command(options, logger)) do |stdin, stdout, stderr, thread|
         stdin.close
         stdout.close
         stderr.each(chomp: true) do |line|
