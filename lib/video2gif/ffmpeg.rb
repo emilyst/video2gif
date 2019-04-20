@@ -40,7 +40,7 @@ module Video2gif
                               gamma_b=#{ options[:gamma_b] || 1 }
                             ].join(':')
                           end
-      palettegen_filter = "palettegen=#{max_colors}stats_mode=diff"
+      palettegen_filter = "palettegen=#{max_colors}stats_mode=full"
       paletteuse_filter = 'paletteuse=dither=floyd_steinberg:diff_mode=rectangle'
       drawtext_filter   = if options[:text]
                             count_of_lines = options[:text].scan(/\\n/).count + 1
