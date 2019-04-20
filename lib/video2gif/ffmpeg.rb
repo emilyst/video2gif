@@ -9,7 +9,8 @@ module Video2gif
       width      = options[:width]   # default is not to scale at all
 
       # create filter elements
-      fps_filter        = "fps=#{fps}"
+      palettegen_fps_filter = "fps=2"  # sample only a few frames a second
+      paletteuse_fps_filter = "fps=#{fps}"
       crop_filter       = options[:cropdetect] || 'crop=' + %W[
                                                      w=#{ options[:wregion] || 'in_w' }
                                                      h=#{ options[:hregion] || 'in_h' }
@@ -75,7 +76,7 @@ module Video2gif
       # first, apply the same filters we'll use later in the same order
       # before applying the palettegen so that we accurately predict the
       # final palette
-      filter_complex << fps_filter
+      filter_complex << palettegen_fps_filter
       filter_complex << crop_filter     if crop_filter
       filter_complex << scale_filter    if options[:width] unless options[:tonemap]
       filter_complex << tonemap_filters if options[:tonemap]
@@ -90,7 +91,7 @@ module Video2gif
       # along with the other filters (drawing text last so that it isn't
       # affected by scaling)
       filter_complex << '[0:v][palette]' + paletteuse_filter
-      filter_complex << fps_filter
+      filter_complex << paletteuse_fps_filter
       filter_complex << crop_filter     if crop_filter
       filter_complex << scale_filter    if options[:width] unless options[:tonemap]
       filter_complex << tonemap_filters if options[:tonemap]
