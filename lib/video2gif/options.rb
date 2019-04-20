@@ -35,7 +35,7 @@ module Video2gif
 
         parser.on('-f FRAMES',
                   '--fps FRAMES',
-                  'Set frames per second for the resulting GIF') do |f|
+                  'Set frames per second for the resulting GIF (default 10)') do |f|
           options[:fps] = f
         end
 

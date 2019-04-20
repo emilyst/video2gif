@@ -4,7 +4,7 @@
 module Video2gif
   module FFMpeg
     def self.filter_complex(options)
-      fps        = options[:fps]     || 15
+      fps        = options[:fps]     || 10
       max_colors = options[:palette] ? "max_colors=#{options[:palette]}:" : ''
       width      = options[:width]   # default is not to scale at all
 
