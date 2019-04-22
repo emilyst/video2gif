@@ -11,12 +11,13 @@ module Video2gif
       # create filter elements
       palettegen_fps_filter = "fps=2"  # sample only a few frames a second
       paletteuse_fps_filter = "fps=#{fps}"
-      crop_filter       = options[:cropdetect] || 'crop=' + %W[
-                                                     w=#{ options[:wregion] || 'in_w' }
-                                                     h=#{ options[:hregion] || 'in_h' }
-                                                     x=#{ options[:xoffset] || 0 }
-                                                     y=#{ options[:yoffset] || 0 }
-                                                  ].join(':')
+      fps_filter        = "fps=#{fps}"
+      crop_filter       = options[:autocrop] || 'crop=' + %W[
+                                                   w=#{ options[:wregion] || 'in_w' }
+                                                   h=#{ options[:hregion] || 'in_h' }
+                                                   x=#{ options[:xoffset] || 0 }
+                                                   y=#{ options[:yoffset] || 0 }
+                                                ].join(':')
       scale_filter      = "scale=#{width}:-1:flags=lanczos:sws_dither=none" if options[:width] unless options[:tonemap]
       tonemap_filters   = if options[:tonemap]  # TODO: detect input format
                             %W[
@@ -108,7 +109,7 @@ module Video2gif
       command << '-ss' << options[:seek] if options[:seek]
       command << '-t' << options[:time] if options[:time]
       command << '-i' << options[:input_filename]
-      command << '-filter_complex' << "cropdetect=limit=#{options[:cropdetect]}"
+      command << '-filter_complex' << "cropdetect=limit=#{options[:autocrop]}"
       command << '-f' << 'null'
       command << '-'
 

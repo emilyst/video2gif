@@ -11,14 +11,14 @@ module Video2gif
       logger = Logger.new(STDOUT)
       options = Video2gif::Options.parse(ARGV)
 
-      if options[:cropdetect]
+      if options[:autocrop]
         Open3.popen3(*Video2gif::FFMpeg.cropdetect_command(options, logger)) do |stdin, stdout, stderr, thread|
           stdin.close
           stdout.close
           stderr.each(chomp: true) do |line|
             logger.info(line) if options[:verbose] unless options[:quiet]
             if line.include?('Parsed_cropdetect')
-              options[:cropdetect] = line.match('crop=([0-9]+\:[0-9]+\:[0-9]+\:[0-9]+)')
+              options[:autocrop] = line.match('crop=([0-9]+\:[0-9]+\:[0-9]+\:[0-9]+)')
             end
           end
           stderr.close

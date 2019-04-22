@@ -81,11 +81,11 @@ module Video2gif
           options[:yoffset] = o
         end
 
-        parser.on('-d [THRESHOLD]',
-                  '--crop-detect [THRESHOLD]',
+        parser.on('-a [THRESHOLD]',
+                  '--autocrop [THRESHOLD]',
                   'Attempt automatic cropping based on black region, scaled',
                   'from 0 (nothing) to 255 (everything), default threshold 24') do |c|
-          options[:cropdetect] = c || 24
+          options[:autocrop] = c || 24
         end
 
         parser.on('--contrast CONTRAST',
