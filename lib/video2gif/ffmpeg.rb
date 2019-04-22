@@ -9,8 +9,6 @@ module Video2gif
       width      = options[:width]   # default is not to scale at all
 
       # create filter elements
-      palettegen_fps_filter = "fps=2"  # sample only a few frames a second
-      paletteuse_fps_filter = "fps=#{fps}"
       fps_filter        = "fps=#{fps}"
       crop_filter       = options[:autocrop] || 'crop=' + %W[
                                                    w=#{ options[:wregion] || 'in_w' }
@@ -21,12 +19,12 @@ module Video2gif
       scale_filter      = "scale=#{width}:-1:flags=lanczos:sws_dither=none" if options[:width] unless options[:tonemap]
       tonemap_filters   = if options[:tonemap]  # TODO: detect input format
                             %W[
-                              zscale=w=#{width}:h=-1
-                              zscale=t=linear:npl=100
+                              zscale=dither=none:filter=lanczos:width=#{width}:height=-1
+                              zscale=transfer=linear:npl=100
                               format=yuv420p10le
-                              zscale=p=bt709
+                              zscale=primaries=bt709
                               tonemap=tonemap=#{options[:tonemap]}:desat=0
-                              zscale=t=bt709:m=bt709:r=tv
+                              zscale=transfer=bt709:matrix=bt709:range=tv
                               format=yuv420p
                             ].join(',')
                           end
@@ -41,8 +39,10 @@ module Video2gif
                               gamma_b=#{ options[:gamma_b] || 1 }
                             ].join(':')
                           end
-      palettegen_filter = "palettegen=#{max_colors}stats_mode=full"
-      paletteuse_filter = 'paletteuse=dither=floyd_steinberg:diff_mode=rectangle'
+      split_filter      = 'split [o1] [o2]'
+      palettegen_filter = "[o1] palettegen=#{max_colors}stats_mode=diff [p]"
+      fifo_filter       = '[o2] fifo [o3]'
+      paletteuse_filter = '[o3] [p] paletteuse=dither=floyd_steinberg:diff_mode=rectangle'
       drawtext_filter   = if options[:text]
                             count_of_lines = options[:text].scan(/\\n/).count + 1
 
@@ -74,30 +74,13 @@ module Video2gif
 
       filter_complex = []
 
-      # first, apply the same filters we'll use later in the same order
-      # before applying the palettegen so that we accurately predict the
-      # final palette
-      filter_complex << palettegen_fps_filter
+      filter_complex << fps_filter
       filter_complex << crop_filter     if crop_filter
       filter_complex << scale_filter    if options[:width] unless options[:tonemap]
       filter_complex << tonemap_filters if options[:tonemap]
       filter_complex << eq_filter       if options[:eq]
       filter_complex << drawtext_filter if options[:text]
-
-      # then generate the palette (and label this filter stream)
-      filter_complex << palettegen_filter + '[palette]'
-
-      # then refer back to the first video input stream and the filter
-      # complex stream to apply the generated palette to the video stream
-      # along with the other filters (drawing text last so that it isn't
-      # affected by scaling)
-      filter_complex << '[0:v][palette]' + paletteuse_filter
-      filter_complex << paletteuse_fps_filter
-      filter_complex << crop_filter     if crop_filter
-      filter_complex << scale_filter    if options[:width] unless options[:tonemap]
-      filter_complex << tonemap_filters if options[:tonemap]
-      filter_complex << eq_filter       if options[:eq]
-      filter_complex << drawtext_filter if options[:text]
+      filter_complex << split_filter << palettegen_filter << fifo_filter << paletteuse_filter
 
       filter_complex.join(',')
     end
@@ -105,7 +88,6 @@ module Video2gif
     def self.cropdetect_command(options, logger)
       command = ['ffmpeg']
       command << '-analyzeduration' << '2147483647' << '-probesize' << '2147483647'
-      command << '-nostdin'
       command << '-ss' << options[:seek] if options[:seek]
       command << '-t' << options[:time] if options[:time]
       command << '-i' << options[:input_filename]
@@ -122,12 +104,10 @@ module Video2gif
       command = ['ffmpeg']
       command << '-y'  # always overwrite
       command << '-analyzeduration' << '2147483647' << '-probesize' << '2147483647'
-      command << '-nostdin'
       command << '-ss' << options[:seek] if options[:seek]
       command << '-t' << options[:time] if options[:time]
       command << '-i' << options[:input_filename]
       command << '-filter_complex' << filter_complex(options)
-      command << '-gifflags' << '+transdiff'  # enabled by default
       command << '-f' << 'gif'
       command << options[:output_filename]
 
