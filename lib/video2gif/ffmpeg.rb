@@ -4,83 +4,73 @@
 module Video2gif
   module FFMpeg
     def self.filter_complex(options)
-      fps        = options[:fps]     || 10
-      max_colors = options[:palette] ? "max_colors=#{options[:palette]}:" : ''
-      width      = options[:width]   # default is not to scale at all
-
-      # create filter elements
-      fps_filter        = "fps=#{fps}"
-      crop_filter       = options[:autocrop] || 'crop=' + %W[
-                                                   w=#{ options[:wregion] || 'in_w' }
-                                                   h=#{ options[:hregion] || 'in_h' }
-                                                   x=#{ options[:xoffset] || 0 }
-                                                   y=#{ options[:yoffset] || 0 }
-                                                ].join(':')
-      scale_filter      = "scale=#{width}:-1:flags=lanczos:sws_dither=none" if options[:width] unless options[:tonemap]
-      tonemap_filters   = if options[:tonemap]  # TODO: detect input format
-                            %W[
-                              zscale=dither=none:filter=lanczos:width=#{width}:height=-1
-                              zscale=transfer=linear:npl=100
-                              format=yuv420p10le
-                              zscale=primaries=bt709
-                              tonemap=tonemap=#{options[:tonemap]}:desat=0
-                              zscale=transfer=bt709:matrix=bt709:range=tv
-                              format=yuv420p
-                            ].join(',')
-                          end
-      eq_filter         = if options[:eq]
-                            'eq=' + %W[
-                              contrast=#{ options[:contrast] || 1 }
-                              brightness=#{ options[:brightness] || 0 }
-                              saturation=#{ options[:saturation] || 1 }
-                              gamma=#{ options[:gamma] || 1 }
-                              gamma_r=#{ options[:gamma_r] || 1 }
-                              gamma_g=#{ options[:gamma_g] || 1 }
-                              gamma_b=#{ options[:gamma_b] || 1 }
-                            ].join(':')
-                          end
-      split_filter      = 'split [o1] [o2]'
-      palettegen_filter = "[o1] palettegen=#{max_colors}stats_mode=diff [p]"
-      fifo_filter       = '[o2] fifo [o3]'
-      paletteuse_filter = '[o3] [p] paletteuse=dither=floyd_steinberg:diff_mode=rectangle'
-      drawtext_filter   = if options[:text]
-                            count_of_lines = options[:text].scan(/\\n/).count + 1
-
-                            x      = options[:xpos]        || '(main_w/2-text_w/2)'
-                            y      = options[:ypos]        || "(main_h-line_h*1.5*#{count_of_lines})"
-                            size   = options[:textsize]    || 32
-                            color  = options[:textcolor]   || 'white'
-                            border = options[:textborder]  || 3
-                            font   = options[:textfont]    || 'Arial'
-                            style  = options[:textvariant] || 'Bold'
-                            text   = options[:text]
-                              .gsub(/\\n/,                                                        '')
-                              .gsub(/([:])/,                                                      '\\\\\\\\\\1')
-                              .gsub(/([,])/,                                                      '\\\\\\1')
-                              .gsub(/\b'\b/,                                                      "\u2019")
-                              .gsub(/\B"\b([^"\u201C\u201D\u201E\u201F\u2033\u2036\r\n]+)\b?"\B/, "\u201C\\1\u201D")
-                              .gsub(/\B'\b([^'\u2018\u2019\u201A\u201B\u2032\u2035\r\n]+)\b?'\B/, "\u2018\\1\u2019")
-
-                            'drawtext=' + %W[
-                              x='#{x}'
-                              y='#{y}'
-                              fontsize='#{size}'
-                              fontcolor='#{color}'
-                              borderw='#{border}'
-                              fontfile='#{font}'\\\\:style='#{style}'
-                              text='#{text}'
-                            ].join(':')
-                          end
-
       filter_complex = []
 
-      filter_complex << fps_filter
-      filter_complex << crop_filter     if crop_filter
-      filter_complex << scale_filter    if options[:width] unless options[:tonemap]
-      filter_complex << tonemap_filters if options[:tonemap]
-      filter_complex << eq_filter       if options[:eq]
-      filter_complex << drawtext_filter if options[:text]
-      filter_complex << split_filter << palettegen_filter << fifo_filter << paletteuse_filter
+      filter_complex << "fps=#{ options[:fps] || 10 }"
+
+      if options[:autocrop]
+        filter_complex << options[:autocrop]
+      else
+        filter_complex << 'crop=' + [
+          "w=#{ options[:wregion] || 'in_w' }",
+          "h=#{ options[:hregion] || 'in_h' }",
+          "x=#{ options[:xoffset] || 0 }",
+          "y=#{ options[:yoffset] || 0 }",
+        ].join(':')
+      end
+
+      if options[:width] && !options[:tonemap]
+        filter_complex << "scale=flags=lanczos:sws_dither=none:width=#{options[:width]}:height=-1"
+      end
+
+      if options[:tonemap]
+        filter_complex << "zscale=dither=none:filter=lanczos:width=#{options[:width]}:height=-1" if options[:width]
+        filter_complex << 'zscale=transfer=linear:npl=100'
+        filter_complex << 'zscale=npl=100'
+        filter_complex << 'format=gbrpf32le'
+        filter_complex << 'zscale=primaries=bt709'
+        filter_complex << "tonemap=tonemap=#{options[:tonemap]}:desat=0"
+        filter_complex << 'zscale=transfer=bt709:matrix=bt709:range=tv'
+        filter_complex << 'format=yuv420p'
+      end
+
+      filter_complex << "eq=contrast=#{ options[:contrast] || 1 }"
+      filter_complex << "eq=brightness=#{ options[:brightness] || 0 }"
+      filter_complex << "eq=saturation=#{ options[:saturation] || 1 }"
+      filter_complex << "eq=gamma=#{ options[:gamma] || 1 }"
+      filter_complex << "eq=gamma_r=#{ options[:gamma_r] || 1 }"
+      filter_complex << "eq=gamma_g=#{ options[:gamma_g] || 1 }"
+      filter_complex << "eq=gamma_b=#{ options[:gamma_b] || 1 }"
+
+      if options[:text]
+        count_of_lines = options[:text].scan(/\\n/).count + 1
+        text = options[:text]
+          .gsub(/\\n/,                                                        '')
+          .gsub(/([:])/,                                                      '\\\\\\\\\\1')
+          .gsub(/([,])/,                                                      '\\\\\\1')
+          .gsub(/\b'\b/,                                                      "\u2019")
+          .gsub(/\B"\b([^"\u201C\u201D\u201E\u201F\u2033\u2036\r\n]+)\b?"\B/, "\u201C\\1\u201D")
+          .gsub(/\B'\b([^'\u2018\u2019\u201A\u201B\u2032\u2035\r\n]+)\b?'\B/, "\u2018\\1\u2019")
+
+        filter_complex << 'drawtext=' + [
+          "x='#{ options[:xpos] || '(main_w/2-text_w/2)' }'",
+          "y='#{ options[:ypos] || "(main_h-line_h*1.5*#{count_of_lines})" }'",
+          "fontsize='#{ options[:textsize] || 32 }'",
+          "fontcolor='#{ options[:textcolor] || 'white' }'",
+          "borderw='#{ options[:textborder] || 3 }'",
+          "fontfile='#{ options[:textfont] || 'Arial'}'\\\\:style='#{options[:textvariant] || 'Bold' }'",
+          "text='#{text}'",
+        ].join(':')
+      end
+
+      filter_complex << 'split [o1] [o2]'
+      if options[:palette]
+        filter_complex << "[o1] palettegen=#{options[:palette]}:stats_mode=diff [p]"
+      else
+        filter_complex << "[o1] palettegen=stats_mode=diff [p]"
+      end
+      filter_complex << '[o2] fifo [o3]'
+      filter_complex << '[o3] [p] paletteuse=dither=floyd_steinberg:diff_mode=rectangle'
 
       filter_complex.join(',')
     end
@@ -104,6 +94,7 @@ module Video2gif
       command = ['ffmpeg']
       command << '-y'  # always overwrite
       command << '-analyzeduration' << '2147483647' << '-probesize' << '2147483647'
+      command << '-loglevel' << 'level+verbose'
       command << '-ss' << options[:seek] if options[:seek]
       command << '-t' << options[:time] if options[:time]
       command << '-i' << options[:input_filename]
