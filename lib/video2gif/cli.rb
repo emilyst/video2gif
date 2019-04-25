@@ -12,16 +12,15 @@ module Video2gif
       options = Video2gif::Options.parse(ARGV)
 
       if options[:autocrop]
-        Open3.popen3(*Video2gif::FFMpeg.cropdetect_command(options, logger)) do |stdin, stdout, stderr, thread|
+        Open3.popen2e(*Video2gif::FFMpeg.cropdetect_command(options, logger)) do |stdin, stdout_stderr, thread|
           stdin.close
-          stdout.close
-          stderr.each(chomp: true) do |line|
+          stdout_stderr.each(chomp: true) do |line|
             logger.info(line) if options[:verbose] unless options[:quiet]
             if line.include?('Parsed_cropdetect')
               options[:autocrop] = line.match('crop=([0-9]+\:[0-9]+\:[0-9]+\:[0-9]+)')
             end
           end
-          stderr.close
+          stdout_stderr.close
 
           unless thread.value.success?
             raise "Process #{thread.pid} failed! Try again with --verbose to see error."
@@ -29,13 +28,12 @@ module Video2gif
         end
       end
 
-      Open3.popen3(*Video2gif::FFMpeg.gif_command(options, logger)) do |stdin, stdout, stderr, thread|
+      Open3.popen2e(*Video2gif::FFMpeg.gif_command(options, logger)) do |stdin, stdout_stderr, thread|
         stdin.close
-        stdout.close
-        stderr.each(chomp: true) do |line|
+        stdout_stderr.each(chomp: true) do |line|
           logger.info(line) if options[:verbose] unless options[:quiet]
         end
-        stderr.close
+        stdout_stderr.close
 
         unless thread.value.success?
           raise "Process #{thread.pid} failed! Try again with --verbose to see error."
