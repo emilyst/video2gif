@@ -14,8 +14,8 @@ module Video2gif
       if options[:autocrop]
         Open3.popen2e(*Video2gif::FFMpeg.cropdetect_command(options, logger)) do |stdin, stdout_stderr, thread|
           stdin.close
-          stdout_stderr.each(chomp: true) do |line|
-            logger.info(line) if options[:verbose] unless options[:quiet]
+          stdout_stderr.each do |line|
+            logger.info(line.chomp) if options[:verbose] unless options[:quiet]
             if line.include?('Parsed_cropdetect')
               options[:autocrop] = line.match('crop=([0-9]+\:[0-9]+\:[0-9]+\:[0-9]+)')
             end
@@ -30,8 +30,8 @@ module Video2gif
 
       Open3.popen2e(*Video2gif::FFMpeg.gif_command(options, logger)) do |stdin, stdout_stderr, thread|
         stdin.close
-        stdout_stderr.each(chomp: true) do |line|
-          logger.info(line) if options[:verbose] unless options[:quiet]
+        stdout_stderr.each do |line|
+          logger.info(line.chomp) if options[:verbose] unless options[:quiet]
         end
         stdout_stderr.close
 
