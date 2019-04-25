@@ -34,13 +34,13 @@ module Video2gif
         filter_complex << 'format=yuv420p'
       end
 
-      filter_complex << "eq=contrast=#{ options[:contrast] || 1 }"
-      filter_complex << "eq=brightness=#{ options[:brightness] || 0 }"
-      filter_complex << "eq=saturation=#{ options[:saturation] || 1 }"
-      filter_complex << "eq=gamma=#{ options[:gamma] || 1 }"
-      filter_complex << "eq=gamma_r=#{ options[:gamma_r] || 1 }"
-      filter_complex << "eq=gamma_g=#{ options[:gamma_g] || 1 }"
-      filter_complex << "eq=gamma_b=#{ options[:gamma_b] || 1 }"
+      filter_complex << "eq=contrast=#{options[:contrast]}"     if options[:contrast]
+      filter_complex << "eq=brightness=#{options[:brightness]}" if options[:brightness]
+      filter_complex << "eq=saturation=#{options[:saturation]}" if options[:saturation]
+      filter_complex << "eq=gamma=#{options[:gamma]}"           if options[:gamma]
+      filter_complex << "eq=gamma_r=#{options[:gamma_r]}"       if options[:gamma_r]
+      filter_complex << "eq=gamma_g=#{options[:gamma_g]}"       if options[:gamma_g]
+      filter_complex << "eq=gamma_b=#{options[:gamma_b]}"       if options[:gamma_b]
 
       if options[:text]
         count_of_lines = options[:text].scan(/\\n/).count + 1
