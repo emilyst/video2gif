@@ -57,6 +57,17 @@ module Video2gif
           options[:palette] = p
         end
 
+        parser.on('-d [ALGORITHM]',
+                  '--[no-]dither [ALGORITHM]',
+                  'Set the dithering algorithm for the palette generation",
+                  "(default enabled with "floyd_steinberg")') do |d|
+          if d.nil?
+            options[:dither] = 'floyd_steinberg'
+          else
+            options[:dither] = d || 'none'
+          end
+        end
+
         parser.on('-c SIZE',
                   '--crop-size-w SIZE',
                   'Pixel size of width to select from source video, before scaling') do |s|

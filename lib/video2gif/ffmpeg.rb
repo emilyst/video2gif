@@ -96,7 +96,7 @@ module Video2gif
       # generated palette as inputs, apply the final palette to the GIF.
       # For non-moving parts of the GIF, attempt to reuse the same
       # palette from frame to frame.
-      filtergraph << '[paletteuse][palette]paletteuse=dither=floyd_steinberg:diff_mode=rectangle'
+      filtergraph << "[paletteuse][palette]paletteuse=dither=#{options[:dither] || 'floyd_steinberg'}:diff_mode=rectangle"
 
       filtergraph.join(',')
     end
@@ -124,7 +124,7 @@ module Video2gif
 
     def self.gif_command(options, logger, executable: 'ffmpeg')
       command = ffmpeg_command(options, executable: executable)
-      command << '-filtergraph' << filtergraph(options)
+      command << '-filter_complex' << filtergraph(options)
       command << '-f' << 'gif'
       command << options[:output_filename]
 
