@@ -63,14 +63,9 @@ module Video2gif
         ].join(':')
       end
 
-      filter_complex << 'split [o1] [o2]'
-      if options[:palette]
-        filter_complex << "[o1] palettegen=#{options[:palette]}:stats_mode=diff [p]"
-      else
-        filter_complex << "[o1] palettegen=stats_mode=diff [p]"
-      end
-      filter_complex << '[o2] fifo [o3]'
-      filter_complex << '[o3] [p] paletteuse=dither=floyd_steinberg:diff_mode=rectangle'
+      filter_complex << 'split [palettegen] [paletteuse]'
+      filter_complex << "[palettegen] palettegen=#{options[:palette] || 256}:stats_mode=diff [palette]"
+      filter_complex << '[paletteuse] [palette] paletteuse=dither=floyd_steinberg:diff_mode=rectangle'
 
       filter_complex.join(',')
     end
