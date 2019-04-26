@@ -113,7 +113,7 @@ module Video2gif
 
     def self.cropdetect_command(options, logger, executable: 'ffmpeg')
       command = ffmpeg_command(options, executable: executable)
-      command << '-filtergraph' << "cropdetect=limit=#{options[:autocrop]}"
+      command << '-filter_complex' << "cropdetect=limit=#{options[:autocrop]}"
       command << '-f' << 'null'
       command << '-'
 
