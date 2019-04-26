@@ -6,8 +6,14 @@ module Video2gif
     def self.filter_complex(options)
       filter_complex = []
 
+      # Set 'fps' filter first, drop unneeded frames instead of
+      # processing those.
       filter_complex << "fps=#{ options[:fps] || 10 }"
 
+      # Crop if needed, using either settings discovered during the
+      # autocrop run or manually set parameters, so we don't process
+      # additional parts of the image (and exclude it from palette
+      # generation).
       if options[:autocrop]
         filter_complex << options[:autocrop]
       else
@@ -19,10 +25,16 @@ module Video2gif
         ].join(':')
       end
 
+      # If we're not attempting to convert HDR to SDR, the standard
+      # 'scale' filter is preferred (if we're resizing at all). Scale
+      # here before other filters to avoid unnecessary processing.
       if options[:width] && !options[:tonemap]
         filter_complex << "scale=flags=lanczos:sws_dither=none:width=#{options[:width]}:height=-1"
       end
 
+      # If we're attempting to convert HDR to SDR, use a set of 'zscale'
+      # filters, 'format' filters, and the 'tonemap' filter. The
+      # 'zscale' will do the resize for us as well.
       if options[:tonemap]
         filter_complex << "zscale=dither=none:filter=lanczos:width=#{options[:width]}:height=-1" if options[:width]
         filter_complex << 'zscale=transfer=linear:npl=100'
@@ -34,6 +46,8 @@ module Video2gif
         filter_complex << 'format=yuv420p'
       end
 
+      # Perform any desired equalization before we overlay text so that
+      # it won't be affected.
       filter_complex << "eq=contrast=#{options[:contrast]}"     if options[:contrast]
       filter_complex << "eq=brightness=#{options[:brightness]}" if options[:brightness]
       filter_complex << "eq=saturation=#{options[:saturation]}" if options[:saturation]
@@ -42,6 +56,8 @@ module Video2gif
       filter_complex << "eq=gamma_g=#{options[:gamma_g]}"       if options[:gamma_g]
       filter_complex << "eq=gamma_b=#{options[:gamma_b]}"       if options[:gamma_b]
 
+      # If there is text to superimpose, do it here before palette
+      # generation to ensure the color looks appropriate.
       if options[:text]
         count_of_lines = options[:text].scan(/\\n/).count + 1
         text = options[:text]
@@ -63,8 +79,20 @@ module Video2gif
         ].join(':')
       end
 
+      # Split the stream into two copies, labeled with output pads for
+      # the palettegen/paletteuse filters to use.
       filter_complex << 'split[palettegen][paletteuse]'
+
+      # Using a copy of the stream created above labeled "palettegen",
+      # generate a palette from the stream using the specified number of
+      # colors and optimizing for moving objects in the stream. Label
+      # this stream's output as "palette."
       filter_complex << "[palettegen]palettegen=#{options[:palette] || 256}:stats_mode=diff[palette]"
+
+      # Using a copy of the stream from the 'split' filter and the
+      # generated palette as inputs, apply the final palette to the GIF.
+      # For non-moving parts of the GIF, attempt to reuse the same
+      # palette from frame to frame.
       filter_complex << '[paletteuse][palette]paletteuse=dither=floyd_steinberg:diff_mode=rectangle'
 
       filter_complex.join(',')
