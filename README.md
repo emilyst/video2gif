@@ -3,7 +3,7 @@ video2gif
 
 `video2gif` eases converting any video into a GIF.
 
-It uses [FFMpeg], so it understands any video that [FFMpeg] does. It has
+It uses [FFmpeg], so it understands any video that [FFmpeg] does. It has
 an array of options to allow you to select the part of the video you
 want, crop it automatically, overlay text, and manipulate the color and
 brightness.
@@ -12,14 +12,14 @@ brightness.
 Installation
 ------------
 
-`video2gif` requires a recent version of [FFMpeg] installed and
-available in the system `$PATH`. If you can run `ffmpeg` from the
+`video2gif` requires a recent version of [FFmpeg] installed and
+available in the system `$PATH`. If you can run `FFmpeg` from the
 command line, you're probably good. If not, use your favorite package
 manager to install it.
 
 Note that some features may not be available by default. For example,
 tonemapping (used for HDR videos) requires `libzimg` support, not
-included by default in the [FFMpeg] supplied by [Homebrew].
+included by default in the [FFmpeg] supplied by [Homebrew].
 
 `video2gif` also requires Ruby and the ability to install a new gem. If
 you have this available, run the following command to install it.
@@ -58,3 +58,7 @@ To contribute to this plugin, find it on GitHub. Please see the
 guidelines.
 
 https://github.com/emilyst/video2gif
+
+
+[FFmpeg]: https://ffmpeg.org
+[Homebrew]: https://brew.sh

@@ -4,14 +4,15 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'video2gif/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'video2gif'
-  spec.version       = Video2gif::VERSION
-  spec.authors       = ['Emily St.']
-  spec.email         = ['hello@emily.st']
+  spec.name        = 'video2gif'
+  spec.version     = Video2gif::VERSION
+  spec.authors     = ['Emily St.']
+  spec.email       = ['hello@emily.st']
 
-  spec.summary       = %q{Automate converting videos to GIFs using FFMpeg}
-  spec.homepage      = 'https://github.com/emilyst/video2gif'
-  spec.license       = 'CC0'
+  spec.summary     = %q{Fully automated luxury gay space GIFs}
+  spec.description = %q{Simple script to automate using FFMpeg to create GIFs from any video}
+  spec.homepage    = 'https://github.com/emilyst/video2gif'
+  spec.license     = 'CC0'
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set
   # the 'allowed_push_host' to allow pushing to a single host or delete
