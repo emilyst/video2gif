@@ -4,12 +4,11 @@ require 'video2gif'
 
 
 describe Video2gif::FFmpeg do
-  describe '::filter_complex' do
-  end
+  describe '::filtergraph'
 
-  describe '::cropdetect_command' do
-  end
+  describe '::ffmpeg_command'
 
-  describe '::gif_command' do
-  end
+  describe '::cropdetect_command'
+
+  describe '::gif_command'
 end

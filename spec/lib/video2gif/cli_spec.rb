@@ -4,6 +4,5 @@ require 'video2gif'
 
 
 describe Video2gif::CLI do
-  describe '::start' do
-  end
+  describe '::start'
 end
