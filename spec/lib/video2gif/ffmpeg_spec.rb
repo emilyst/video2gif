@@ -3,7 +3,7 @@
 require 'video2gif'
 
 
-describe Video2gif::FFMpeg do
+describe Video2gif::FFmpeg do
   describe '::filter_complex' do
   end
 

@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email       = ['hello@emily.st']
 
   spec.summary     = %q{Fully automated luxury gay space GIFs}
-  spec.description = %q{Simple script to automate using FFMpeg to create GIFs from any video}
+  spec.description = %q{Simple script to automate using FFmpeg to create GIFs from any video}
   spec.homepage    = 'https://github.com/emilyst/video2gif'
   spec.license     = 'CC0'
 

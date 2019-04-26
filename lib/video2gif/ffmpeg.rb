@@ -2,7 +2,7 @@
 
 
 module Video2gif
-  module FFMpeg
+  module FFmpeg
     def self.filtergraph(options)
       filtergraph = []
 
