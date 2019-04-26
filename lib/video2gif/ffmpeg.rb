@@ -78,6 +78,7 @@ module Video2gif
     def self.cropdetect_command(options, logger)
       command = ['ffmpeg']
       command << '-analyzeduration' << '2147483647' << '-probesize' << '2147483647'
+      command << '-loglevel' << 'verbose'
       command << '-ss' << options[:seek] if options[:seek]
       command << '-t' << options[:time] if options[:time]
       command << '-i' << options[:input_filename]
@@ -94,7 +95,7 @@ module Video2gif
       command = ['ffmpeg']
       command << '-y'  # always overwrite
       command << '-analyzeduration' << '2147483647' << '-probesize' << '2147483647'
-      command << '-loglevel' << 'level+verbose'
+      command << '-loglevel' << 'verbose'
       command << '-ss' << options[:seek] if options[:seek]
       command << '-t' << options[:time] if options[:time]
       command << '-i' << options[:input_filename]
