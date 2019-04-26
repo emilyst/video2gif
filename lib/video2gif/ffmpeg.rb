@@ -8,16 +8,19 @@ module Video2gif
 
       # Set 'fps' filter first, drop unneeded frames instead of
       # processing those.
-      filter_complex << "fps=#{ options[:fps] || 10 }"
+      filtergraph << "fps=#{ options[:fps] || 10 }"
 
       # Crop if needed, using either settings discovered during the
       # autocrop run or manually set parameters, so we don't process
       # additional parts of the image (and exclude it from palette
       # generation).
       if options[:autocrop]
-        filter_complex << options[:autocrop]
-      else
-        filter_complex << 'crop=' + [
+        filtergraph << options[:autocrop]
+      elsif options[:wregion] ||
+            options[:hregion] ||
+            options[:xoffset] ||
+            options[:yoffset]
+        filtergraph << 'crop=' + [
           "w=#{ options[:wregion] || 'in_w' }",
           "h=#{ options[:hregion] || 'in_h' }",
           "x=#{ options[:xoffset] || 0 }",
@@ -29,32 +32,32 @@ module Video2gif
       # 'scale' filter is preferred (if we're resizing at all). Scale
       # here before other filters to avoid unnecessary processing.
       if options[:width] && !options[:tonemap]
-        filter_complex << "scale=flags=lanczos:sws_dither=none:width=#{options[:width]}:height=-1"
+        filtergraph << "scale=flags=lanczos:sws_dither=none:width=#{options[:width]}:height=-1"
       end
 
       # If we're attempting to convert HDR to SDR, use a set of 'zscale'
       # filters, 'format' filters, and the 'tonemap' filter. The
       # 'zscale' will do the resize for us as well.
       if options[:tonemap]
-        filter_complex << "zscale=dither=none:filter=lanczos:width=#{options[:width]}:height=-1" if options[:width]
-        filter_complex << 'zscale=transfer=linear:npl=100'
-        filter_complex << 'zscale=npl=100'
-        filter_complex << 'format=gbrpf32le'
-        filter_complex << 'zscale=primaries=bt709'
-        filter_complex << "tonemap=tonemap=#{options[:tonemap]}:desat=0"
-        filter_complex << 'zscale=transfer=bt709:matrix=bt709:range=tv'
-        filter_complex << 'format=yuv420p'
+        filtergraph << "zscale=dither=none:filter=lanczos:width=#{options[:width]}:height=-1" if options[:width]
+        filtergraph << 'zscale=transfer=linear:npl=100'
+        filtergraph << 'zscale=npl=100'
+        filtergraph << 'format=gbrpf32le'
+        filtergraph << 'zscale=primaries=bt709'
+        filtergraph << "tonemap=tonemap=#{options[:tonemap]}:desat=0"
+        filtergraph << 'zscale=transfer=bt709:matrix=bt709:range=tv'
+        filtergraph << 'format=yuv420p'
       end
 
       # Perform any desired equalization before we overlay text so that
       # it won't be affected.
-      filter_complex << "eq=contrast=#{options[:contrast]}"     if options[:contrast]
-      filter_complex << "eq=brightness=#{options[:brightness]}" if options[:brightness]
-      filter_complex << "eq=saturation=#{options[:saturation]}" if options[:saturation]
-      filter_complex << "eq=gamma=#{options[:gamma]}"           if options[:gamma]
-      filter_complex << "eq=gamma_r=#{options[:gamma_r]}"       if options[:gamma_r]
-      filter_complex << "eq=gamma_g=#{options[:gamma_g]}"       if options[:gamma_g]
-      filter_complex << "eq=gamma_b=#{options[:gamma_b]}"       if options[:gamma_b]
+      filtergraph << "eq=contrast=#{options[:contrast]}"     if options[:contrast]
+      filtergraph << "eq=brightness=#{options[:brightness]}" if options[:brightness]
+      filtergraph << "eq=saturation=#{options[:saturation]}" if options[:saturation]
+      filtergraph << "eq=gamma=#{options[:gamma]}"           if options[:gamma]
+      filtergraph << "eq=gamma_r=#{options[:gamma_r]}"       if options[:gamma_r]
+      filtergraph << "eq=gamma_g=#{options[:gamma_g]}"       if options[:gamma_g]
+      filtergraph << "eq=gamma_b=#{options[:gamma_b]}"       if options[:gamma_b]
 
       # If there is text to superimpose, do it here before palette
       # generation to ensure the color looks appropriate.
@@ -68,7 +71,7 @@ module Video2gif
           .gsub(/\B"\b([^"\u201C\u201D\u201E\u201F\u2033\u2036\r\n]+)\b?"\B/, "\u201C\\1\u201D")
           .gsub(/\B'\b([^'\u2018\u2019\u201A\u201B\u2032\u2035\r\n]+)\b?'\B/, "\u2018\\1\u2019")
 
-        filter_complex << 'drawtext=' + [
+        filtergraph << 'drawtext=' + [
           "x='#{ options[:xpos] || '(main_w/2-text_w/2)' }'",
           "y='#{ options[:ypos] || "(main_h-line_h*1.5*#{count_of_lines})" }'",
           "fontsize='#{ options[:textsize] || 32 }'",
@@ -81,21 +84,21 @@ module Video2gif
 
       # Split the stream into two copies, labeled with output pads for
       # the palettegen/paletteuse filters to use.
-      filter_complex << 'split[palettegen][paletteuse]'
+      filtergraph << 'split[palettegen][paletteuse]'
 
       # Using a copy of the stream created above labeled "palettegen",
       # generate a palette from the stream using the specified number of
       # colors and optimizing for moving objects in the stream. Label
       # this stream's output as "palette."
-      filter_complex << "[palettegen]palettegen=#{options[:palette] || 256}:stats_mode=diff[palette]"
+      filtergraph << "[palettegen]palettegen=#{options[:palette] || 256}:stats_mode=diff[palette]"
 
       # Using a copy of the stream from the 'split' filter and the
       # generated palette as inputs, apply the final palette to the GIF.
       # For non-moving parts of the GIF, attempt to reuse the same
       # palette from frame to frame.
-      filter_complex << '[paletteuse][palette]paletteuse=dither=floyd_steinberg:diff_mode=rectangle'
+      filtergraph << '[paletteuse][palette]paletteuse=dither=floyd_steinberg:diff_mode=rectangle'
 
-      filter_complex.join(',')
+      filtergraph.join(',')
     end
 
     def self.cropdetect_command(options, logger)
