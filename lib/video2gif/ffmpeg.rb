@@ -3,8 +3,8 @@
 
 module Video2gif
   module FFMpeg
-    def self.filter_complex(options)
-      filter_complex = []
+    def self.filtergraph(options)
+      filtergraph = []
 
       # Set 'fps' filter first, drop unneeded frames instead of
       # processing those.
@@ -101,14 +101,19 @@ module Video2gif
       filtergraph.join(',')
     end
 
-    def self.cropdetect_command(options, logger)
-      command = ['ffmpeg']
+    def self.ffmpeg_command(options, executable: 'ffmpeg')
+      command = [executable]
+      command << '-y'  # always overwrite
       command << '-analyzeduration' << '2147483647' << '-probesize' << '2147483647'
       command << '-loglevel' << 'verbose'
       command << '-ss' << options[:seek] if options[:seek]
       command << '-t' << options[:time] if options[:time]
       command << '-i' << options[:input_filename]
-      command << '-filter_complex' << "cropdetect=limit=#{options[:autocrop]}"
+    end
+
+    def self.cropdetect_command(options, logger, executable: 'ffmpeg')
+      command = ffmpeg_command(options, executable: executable)
+      command << '-filtergraph' << "cropdetect=limit=#{options[:autocrop]}"
       command << '-f' << 'null'
       command << '-'
 
@@ -117,15 +122,9 @@ module Video2gif
       command
     end
 
-    def self.gif_command(options, logger)
-      command = ['ffmpeg']
-      command << '-y'  # always overwrite
-      command << '-analyzeduration' << '2147483647' << '-probesize' << '2147483647'
-      command << '-loglevel' << 'verbose'
-      command << '-ss' << options[:seek] if options[:seek]
-      command << '-t' << options[:time] if options[:time]
-      command << '-i' << options[:input_filename]
-      command << '-filter_complex' << filter_complex(options)
+    def self.gif_command(options, logger, executable: 'ffmpeg')
+      command = ffmpeg_command(options, executable: executable)
+      command << '-filtergraph' << filtergraph(options)
       command << '-f' << 'gif'
       command << options[:output_filename]
 
