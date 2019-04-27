@@ -79,14 +79,14 @@ module Video2gif
           .gsub(/\B"\b([^"\u201C\u201D\u201E\u201F\u2033\u2036\r\n]+)\b?"\B/, "\u201C\\1\u201D")
           .gsub(/\B'\b([^'\u2018\u2019\u201A\u201B\u2032\u2035\r\n]+)\b?'\B/, "\u2018\\1\u2019")
 
-        filtergraph << 'drawtext=' + [
-          "x='#{ options[:xpos] || '(main_w/2-text_w/2)' }'",
-          "y='#{ options[:ypos] || "(main_h-line_h*1.5*#{count_of_lines})" }'",
-          "fontsize='#{ options[:textsize] || 32 }'",
-          "fontcolor='#{ options[:textcolor] || 'white' }'",
-          "borderw='#{ options[:textborder] || 3 }'",
-          "fontfile='#{ options[:textfont] || 'Arial'}'\\\\:style='#{options[:textvariant] || 'Bold' }'",
-          "text='#{text}'",
+        filtergraph << 'drawtext=' + %W[
+          x='#{ options[:xpos] || '(main_w/2-text_w/2)' }'
+          y='#{ options[:ypos] || "(main_h-line_h*1.5*#{count_of_lines})" }'
+          fontsize='#{ options[:textsize] || 32 }'
+          fontcolor='#{ options[:textcolor] || 'white' }'
+          borderw='#{ options[:textborder] || 3 }'
+          fontfile='#{ options[:textfont] || 'Arial'}'\\\\:style='#{options[:textvariant] || 'Bold' }'
+          text='#{text}'
         ].join(':')
       end
 
@@ -109,7 +109,8 @@ module Video2gif
 
     def self.ffmpeg_command(options, executable: 'ffmpeg')
       command = [executable]
-      command << '-y'  # always overwrite
+      command << '-y'
+      command << '-hide_banner'
       command << '-analyzeduration' << '2147483647' << '-probesize' << '2147483647'
       command << '-loglevel' << 'verbose'
       command << '-ss' << options[:seek] if options[:seek]
