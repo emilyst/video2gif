@@ -6,6 +6,13 @@ module Video2gif
     def self.filtergraph(options)
       filtergraph = []
 
+      # Subtitle overlay has to be first due to sync problems.
+      if options[:subtitles] && options[:subtitles].is_a?(TrueClass)
+        filtergraph << '[0:v][0:s:0]overlay=format=auto'
+      elsif options[:subtitles] && options[:subtitles].match(/\A\d+\z/)
+        filtergraph << "[0:v][0:s:#{options[:subtitles]}]overlay=format=auto"
+      end
+
       # Set 'fps' filter first, drop unneeded frames instead of
       # processing those.
       filtergraph << "fps=#{ options[:fps] || 10 }"

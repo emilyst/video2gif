@@ -148,6 +148,15 @@ module Video2gif
           options[:tonemap] = t || 'hable'
         end
 
+        parser.on('--subtitles [SELECTION INDEX]',
+                  'Attempt to use the subtitles built into the video to',
+                  'overlay text on the resulting GIF. Takes an optional',
+                  'integer value to choose the subtitle stream. (Defaults',
+                  'to the first subtitle stream, 0) (ONLY WORKS WITH BITMAP',
+                  'SUBTITLES AT THIS TIME)') do |s|
+                    options[:subtitles] = s || true
+                  end
+
         parser.separator ''
         parser.separator 'Text overlay options (only used if text is defined):'
 
