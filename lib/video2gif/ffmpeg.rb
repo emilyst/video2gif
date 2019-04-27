@@ -38,7 +38,7 @@ module Video2gif
            filter=lanczos
            width=#{options[:width]}
            height=trunc(#{options[:width]}/dar)
-        ] if options[:width]
+        ].join(':') if options[:width]
         filtergraph << 'zscale=transfer=linear:npl=100'
         filtergraph << 'zscale=npl=100'
         filtergraph << 'format=gbrpf32le'
