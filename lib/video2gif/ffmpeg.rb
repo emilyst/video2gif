@@ -53,7 +53,7 @@ module Video2gif
           flags=lanczos
           sws_dither=none
           width=#{options[:width]}
-          height=trunc(#{options[:width]}/dar
+          height=trunc(#{options[:width]}/dar)
         ].join(':') if options[:width] && !options[:tonemap]
       end
 
