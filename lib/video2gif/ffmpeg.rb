@@ -28,18 +28,17 @@ module Video2gif
         ].join(':')
       end
 
-      # If we're not attempting to convert HDR to SDR, the standard
-      # 'scale' filter is preferred (if we're resizing at all). Scale
-      # here before other filters to avoid unnecessary processing.
-      if options[:width] && !options[:tonemap]
-        filtergraph << "scale=flags=lanczos:sws_dither=none:width=#{options[:width]}:height=-1"
-      end
-
-      # If we're attempting to convert HDR to SDR, use a set of 'zscale'
-      # filters, 'format' filters, and the 'tonemap' filter. The
-      # 'zscale' will do the resize for us as well.
+      # Scale here before other filters to avoid unnecessary processing.
       if options[:tonemap]
-        filtergraph << "zscale=dither=none:filter=lanczos:width=#{options[:width]}:height=-1" if options[:width]
+        # If we're attempting to convert HDR to SDR, use a set of
+        # 'zscale' filters, 'format' filters, and the 'tonemap' filter.
+        # The 'zscale' will do the resize for us as well.
+        filtergraph << 'zscale=' + %W[
+           dither=none
+           filter=lanczos
+           width=#{options[:width]}
+           height=trunc(#{options[:width]}/dar)
+        ] if options[:width]
         filtergraph << 'zscale=transfer=linear:npl=100'
         filtergraph << 'zscale=npl=100'
         filtergraph << 'format=gbrpf32le'
@@ -47,6 +46,15 @@ module Video2gif
         filtergraph << "tonemap=tonemap=#{options[:tonemap]}:desat=0"
         filtergraph << 'zscale=transfer=bt709:matrix=bt709:range=tv'
         filtergraph << 'format=yuv420p'
+      else
+        # If we're not attempting to convert HDR to SDR, the standard
+        # 'scale' filter is preferred (if we're resizing at all).
+        filtergraph << 'scale=' + %W[
+          flags=lanczos
+          sws_dither=none
+          width=#{options[:width]}
+          height=trunc(#{options[:width]}/dar
+        ].join(':') if options[:width] && !options[:tonemap]
       end
 
       # Perform any desired equalization before we overlay text so that
