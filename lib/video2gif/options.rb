@@ -148,14 +148,27 @@ module Video2gif
           options[:tonemap] = t || 'hable'
         end
 
-        parser.on('--subtitles [SELECTION INDEX]',
-                  'Attempt to use the subtitles built into the video to',
-                  'overlay text on the resulting GIF. Takes an optional',
-                  'integer value to choose the subtitle stream. (Defaults',
-                  'to the first subtitle stream, 0) (ONLY WORKS WITH BITMAP',
-                  'SUBTITLES AT THIS TIME)') do |s|
-                    options[:subtitles] = s || true
-                  end
+        parser.on('--subtitles [INDEX]',
+                  '(Experimental, requires ffprobe) Attempt to use the',
+                  'subtitles built into the video to overlay text on the',
+                  'resulting GIF. Takes an optional integer value to',
+                  'choose the subtitle stream (defaults to the first',
+                  'subtitle stream, index 0)') do |s|
+          unless Video2gif::Utils.is_executable?('ffprobe')
+            puts 'ERROR: Requires FFmpeg utils to be installed (for ffprobe)!'
+            exit 1
+          end
+
+          options[:subtitles] = s || true
+          options[:subtitle_index] =  if options[:subtitles].is_a?(TrueClass)  # default to first stream
+                                        0
+                                      elsif options[:subtitles].match?(/\A\d+\z/)  # select stream by index
+                                        options[:subtitles].to_i
+                                      elsif options[:subtitles].is_a?(String)  # open subtitles file
+                                        puts 'ERROR: Selecting subtitles by filename is not yet supported!'
+                                        exit 1
+                                      end
+        end
 
         parser.separator ''
         parser.separator 'Text overlay options (only used if text is defined):'

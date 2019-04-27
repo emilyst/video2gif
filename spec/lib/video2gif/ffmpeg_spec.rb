@@ -8,6 +8,8 @@ describe Video2gif::FFmpeg do
 
   describe '::ffmpeg_command'
 
+  describe '::ffprobe_command'
+
   describe '::cropdetect_command'
 
   describe '::gif_command'

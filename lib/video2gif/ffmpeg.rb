@@ -3,14 +3,30 @@
 
 module Video2gif
   module FFmpeg
+    CROP_REGEX = /crop=([0-9]+\:[0-9]+\:[0-9]+\:[0-9]+)/
+
     def self.filtergraph(options)
       filtergraph = []
 
-      # Subtitle overlay has to be first due to sync problems.
-      if options[:subtitles] && options[:subtitles].is_a?(TrueClass)
-        filtergraph << '[0:v][0:s:0]overlay=format=auto'
-      elsif options[:subtitles] && options[:subtitles].match(/\A\d+\z/)
-        filtergraph << "[0:v][0:s:#{options[:subtitles]}]overlay=format=auto"
+      if options[:subtitles] && options[:probe_infos][:streams].any? do |s|
+        s[:codec_type] == 'subtitle'
+      end
+        video_info = options[:probe_infos][:streams].find { |s| s[:codec_type] == 'video' }
+        subtitle_info = options[:probe_infos][:streams].find_all { |s| s[:codec_type] == 'subtitle' }[options[:subtitle_index]]
+
+        if Video2gif::FFmpeg::Subtitles::KNOWN_TEXT_FORMATS.include?(subtitle_info[:codec_name])
+          filtergraph << "setpts=PTS+#{Video2gif::Utils.duration_to_seconds(options[:seek])}/TB"
+          filtergraph << "subtitles='#{options[:input_filename]}':si=#{options[:subtitle_index]}"
+          filtergraph << 'setpts=PTS-STARTPTS'
+        elsif Video2gif::FFmpeg::Subtitles::KNOWN_BITMAP_FORMATS.include?(subtitle_info[:codec_name])
+          filtergraph << "[0:s:#{options[:subtitle_index]}]scale=" + %W[
+            flags=lanczos
+            sws_dither=none
+            width=#{video_info[:width]}
+            height=#{video_info[:height]}
+          ].join(':') + '[subs]' if options[:width]
+          filtergraph << "[0:v][subs]overlay=format=auto"
+        end
       end
 
       # Set 'fps' filter first, drop unneeded frames instead of
@@ -112,6 +128,18 @@ module Video2gif
       # For non-moving parts of the GIF, attempt to reuse the same
       # palette from frame to frame.
       filtergraph << "[paletteuse][palette]paletteuse=dither=#{options[:dither] || 'floyd_steinberg'}:diff_mode=rectangle"
+    end
+
+    def self.ffprobe_command(options, logger, executable: 'ffprobe')
+      command = [executable]
+      command << '-v' << 'error'
+      command << '-show_entries' << 'stream'
+      command << '-print_format' << 'json'
+      command << '-i' << options[:input_filename]
+
+      logger.info(command.join(' ')) if options[:verbose] unless options[:quiet]
+
+      command
     end
 
     def self.ffmpeg_command(options, executable: 'ffmpeg')
