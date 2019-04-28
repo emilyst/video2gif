@@ -44,7 +44,7 @@ module Video2gif
           stdout_stderr.each do |line|
             logger.info(line.chomp) if options[:verbose] unless options[:quiet]
             if line.include?('Parsed_cropdetect')
-              options[:autocrop] = line.match(Video2Gif::FFmpeg::CROP_REGEX)
+              options[:autocrop] = line.match(FFmpeg::CROP_REGEX)
             end
           end
           stdout_stderr.close
