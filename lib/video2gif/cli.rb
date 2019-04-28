@@ -10,12 +10,12 @@ module Video2gif
   module CLI
     def self.start
       logger = Logger.new(STDOUT)
-      options = Video2gif::Options.parse(ARGV)
+      options = Options.parse(ARGV)
 
       if options[:subtitles]
         lines = []
 
-        Open3.popen2e(*Video2gif::FFmpeg.ffprobe_command(options, logger)) do |stdin, stdout_stderr, thread|
+        Open3.popen2e(*FFmpeg.ffprobe_command(options, logger)) do |stdin, stdout_stderr, thread|
           stdin.close
           stdout_stderr.each do |line|
             logger.info(line.chomp) if options[:verbose] unless options[:quiet]
@@ -39,7 +39,7 @@ module Video2gif
       end
 
       if options[:autocrop]
-        Open3.popen2e(*Video2gif::FFmpeg.cropdetect_command(options, logger)) do |stdin, stdout_stderr, thread|
+        Open3.popen2e(*FFmpeg.cropdetect_command(options, logger)) do |stdin, stdout_stderr, thread|
           stdin.close
           stdout_stderr.each do |line|
             logger.info(line.chomp) if options[:verbose] unless options[:quiet]
@@ -56,7 +56,7 @@ module Video2gif
         end
       end
 
-      Open3.popen2e(*Video2gif::FFmpeg.gif_command(options, logger)) do |stdin, stdout_stderr, thread|
+      Open3.popen2e(*FFmpeg.gif_command(options, logger)) do |stdin, stdout_stderr, thread|
         stdin.close
         stdout_stderr.each do |line|
           logger.info(line.chomp) if options[:verbose] unless options[:quiet]

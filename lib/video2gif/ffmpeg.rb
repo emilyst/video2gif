@@ -14,11 +14,11 @@ module Video2gif
         video_info = options[:probe_infos][:streams].find { |s| s[:codec_type] == 'video' }
         subtitle_info = options[:probe_infos][:streams].find_all { |s| s[:codec_type] == 'subtitle' }[options[:subtitle_index]]
 
-        if Video2gif::FFmpeg::Subtitles::KNOWN_TEXT_FORMATS.include?(subtitle_info[:codec_name])
-          filtergraph << "setpts=PTS+#{Video2gif::Utils.duration_to_seconds(options[:seek])}/TB"
+        if Subtitles::KNOWN_TEXT_FORMATS.include?(subtitle_info[:codec_name])
+          filtergraph << "setpts=PTS+#{Utils.duration_to_seconds(options[:seek])}/TB"
           filtergraph << "subtitles='#{options[:input_filename]}':si=#{options[:subtitle_index]}"
           filtergraph << 'setpts=PTS-STARTPTS'
-        elsif Video2gif::FFmpeg::Subtitles::KNOWN_BITMAP_FORMATS.include?(subtitle_info[:codec_name])
+        elsif Subtitles::KNOWN_BITMAP_FORMATS.include?(subtitle_info[:codec_name])
           filtergraph << "[0:s:#{options[:subtitle_index]}]scale=" + %W[
             flags=lanczos
             sws_dither=none

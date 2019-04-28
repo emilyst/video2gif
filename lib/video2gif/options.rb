@@ -154,7 +154,7 @@ module Video2gif
                   'resulting GIF. Takes an optional integer value to',
                   'choose the subtitle stream (defaults to the first',
                   'subtitle stream, index 0)') do |s|
-          unless Video2gif::Utils.is_executable?('ffprobe')
+          unless Utils.is_executable?('ffprobe')
             puts 'ERROR: Requires FFmpeg utils to be installed (for ffprobe)!'
             exit 1
           end
@@ -242,7 +242,7 @@ module Video2gif
 
       parser.parse!
 
-      unless Video2gif::Utils.is_executable?('ffmpeg')
+      unless Utils.is_executable?('ffmpeg')
         puts 'ERROR: Requires FFmpeg to be installed!'
         exit 1
       end
