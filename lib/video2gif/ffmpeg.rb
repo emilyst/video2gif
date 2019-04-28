@@ -146,7 +146,7 @@ module Video2gif
       command = [executable]
       command << '-y'
       command << '-hide_banner'
-      command << '-analyzeduration' << '2147483647' << '-probesize' << '2147483647'
+      # command << '-analyzeduration' << '2147483647' << '-probesize' << '2147483647'
       command << '-loglevel' << 'verbose'
       command << '-ss' << options[:seek] if options[:seek]
       command << '-t' << options[:time] if options[:time]
