@@ -151,9 +151,9 @@ module Video2gif
         parser.on('--subtitles [INDEX]',
                   '(Experimental, requires ffprobe) Attempt to use the',
                   'subtitles built into the video to overlay text on the',
-                  'resulting GIF. Takes an optional integer value to',
-                  'choose the subtitle stream (defaults to the first',
-                  'subtitle stream, index 0)') do |s|
+                  'resulting GIF. May be extremely slow for text subtitles.',
+                  'Takes an optional integer value to choose the subtitle',
+                  'stream (defaults to the first subtitle stream, index 0)') do |s|
           unless Utils.is_executable?('ffprobe')
             puts 'ERROR: Requires FFmpeg utils to be installed (for ffprobe)!'
             exit 1
