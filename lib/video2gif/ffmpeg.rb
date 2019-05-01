@@ -24,8 +24,8 @@ module Video2gif
             sws_dither=none
             width=#{video_info[:width]}
             height=#{video_info[:height]}
-          ].join(':') + '[subs]' if options[:width]
-          filtergraph << "[0:v][subs]overlay=format=auto"
+          ].join(':') + '[subs]'
+          filtergraph << '[0:v][subs]overlay=format=auto'
         end
       end
 
@@ -57,10 +57,10 @@ module Video2gif
         # 'zscale' filters, 'format' filters, and the 'tonemap' filter.
         # The 'zscale' will do the resize for us as well.
         filtergraph << 'zscale=' + %W[
-           dither=none
-           filter=lanczos
-           width=#{options[:width]}
-           height=trunc(#{options[:width]}/dar)
+          dither=none
+          filter=lanczos
+          width=#{options[:width]}
+          height=trunc(#{options[:width]}/dar)
         ].join(':') if options[:width]
         filtergraph << 'zscale=transfer=linear:npl=100'
         filtergraph << 'zscale=npl=100'
