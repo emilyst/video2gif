@@ -181,31 +181,31 @@ module Video2gif
 
         parser.on('-C TEXTCOLOR',
                   '--text-color TEXTCOLOR',
-                  'Set the color for text overlay') do |p|
+                  'Set the color for text overlay (default white)') do |p|
           options[:textcolor] = p
         end
 
         parser.on('-S TEXTSIZE',
                   '--text-size TEXTSIZE',
-                  'Set the point size for text overlay') do |p|
+                  'Set the point size for text overlay (default 30)') do |p|
           options[:textsize] = p
         end
 
         parser.on('-B TEXTBORDER',
                   '--text-border TEXTBORDER',
-                  'Set the width of the border for text overlay') do |p|
+                  'Set the width of the border for text overlay (default 1)') do |p|
           options[:textborder] = p
         end
 
         parser.on('-F TEXTFONT',
                   '--text-font TEXTFONT',
-                  'Set the font name for text overlay') do |p|
+                  'Set the font name for text overlay (default "Arial")') do |p|
           options[:textfont] = p
         end
 
         parser.on('-V TEXTSTYLE',
                   '--text-variant TEXTVARIANT',
-                  'Set the font variant for text overlay (e.g., "Semibold")') do |p|
+                  'Set the font variant for text overlay (default "Bold")') do |p|
           options[:textvariant] = p
         end
 

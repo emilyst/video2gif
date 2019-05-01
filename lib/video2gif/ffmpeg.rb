@@ -107,7 +107,7 @@ module Video2gif
           y='#{ options[:ypos] || "(main_h-line_h*1.5*#{count_of_lines})" }'
           fontsize='#{ options[:textsize] || 32 }'
           fontcolor='#{ options[:textcolor] || 'white' }'
-          borderw='#{ options[:textborder] || 3 }'
+          borderw='#{ options[:textborder] || 1 }'
           fontfile='#{ options[:textfont] || 'Arial'}'\\\\:style='#{options[:textvariant] || 'Bold' }'
           text='#{text}'
         ].join(':')
