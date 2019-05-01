@@ -59,9 +59,9 @@ module Video2gif
         filtergraph << 'zscale=' + %W[
           dither=none
           filter=lanczos
-          width=#{options[:width]}
-          height=trunc(#{options[:width]}/dar)
-        ].join(':') if options[:width]
+          width=#{ options[:width] || 500 }
+          height=trunc(#{ options[:width] || 500 }/dar)
+        ].join(':')
         filtergraph << 'zscale=transfer=linear:npl=100'
         filtergraph << 'zscale=npl=100'
         filtergraph << 'format=gbrpf32le'
@@ -75,9 +75,9 @@ module Video2gif
         filtergraph << 'scale=' + %W[
           flags=lanczos
           sws_dither=none
-          width=#{options[:width]}
-          height=trunc(#{options[:width]}/dar)
-        ].join(':') if options[:width] && !options[:tonemap]
+          width=#{ options[:width] || 500 }
+          height=trunc(#{ options[:width] || 500 }/dar)
+        ].join(':') unless options[:tonemap]
       end
 
       # Perform any desired equalization before we overlay text so that
