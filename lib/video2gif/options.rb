@@ -42,7 +42,7 @@ module Video2gif
         parser.on('-w WIDTH',
                   '--width WIDTH',
                   'Scale the width of the resulting GIF in pixels (aspect',
-                  'ratio is preserved, default is 500 pixels)') do |w|
+                  'ratio is preserved, default is 400 pixels)') do |w|
           options[:width] = w
         end
 

@@ -59,8 +59,8 @@ module Video2gif
         filtergraph << 'zscale=' + %W[
           dither=none
           filter=lanczos
-          width=#{ options[:width] || 500 }
-          height=trunc(#{ options[:width] || 500 }/dar)
+          width=#{ options[:width] || 400 }
+          height=trunc(#{ options[:width] || 400 }/dar)
         ].join(':')
         filtergraph << 'zscale=transfer=linear:npl=100'
         filtergraph << 'zscale=npl=100'
@@ -75,8 +75,8 @@ module Video2gif
         filtergraph << 'scale=' + %W[
           flags=lanczos
           sws_dither=none
-          width=#{ options[:width] || 500 }
-          height=trunc(#{ options[:width] || 500 }/dar)
+          width=#{ options[:width] || 400 }
+          height=trunc(#{ options[:width] || 400 }/dar)
         ].join(':') unless options[:tonemap]
       end
 
