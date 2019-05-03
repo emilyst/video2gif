@@ -59,8 +59,8 @@ module Video2gif
 
         parser.on('-d [ALGORITHM]',
                   '--[no-]dither [ALGORITHM]',
-                  'Set the dithering algorithm for the palette generation",
-                  "(default enabled with "floyd_steinberg")') do |d|
+                  'Set the dithering algorithm for the palette generation',
+                  '(default enabled with "floyd_steinberg")') do |d|
           if d.nil?
             options[:dither] = 'floyd_steinberg'
           else
@@ -68,26 +68,22 @@ module Video2gif
           end
         end
 
-        parser.on('-c SIZE',
-                  '--crop-size-w SIZE',
+        parser.on('--crop-size-w SIZE',
                   'Pixel size of width to select from source video, before scaling') do |s|
           options[:wregion] = s
         end
 
-        parser.on('-h SIZE',
-                  '--crop-size-h SIZE',
+        parser.on('--crop-size-h SIZE',
                   'Pixel size of height to select from source video, before scaling') do |s|
           options[:hregion] = s
         end
 
-        parser.on('-x OFFSET',
-                  '--crop-offset-x OFFSET',
+        parser.on('--crop-offset-x OFFSET',
                   'Pixel offset from left to select from source video, before scaling') do |o|
           options[:xoffset] = o
         end
 
-        parser.on('-y OFFSET',
-                  '--crop-offset-y OFFSET',
+        parser.on('--crop-offset-y OFFSET',
                   'Pixel offset from top to select from source video, before scaling') do |o|
           options[:yoffset] = o
         end
