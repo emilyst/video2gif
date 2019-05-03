@@ -9,17 +9,39 @@ want, crop it automatically, overlay text, and manipulate the color and
 brightness.
 
 
+Status
+------
+
+Currently, `video2gif` is in alpha status: it is feature-incomplete, not
+guaranteed to work at all, and subject to change features, options, or
+defaults. The [patch-level version] will increment for each change until
+it is ready for beta status.
+
+Planned before beta status is
+
+* full documentation, including a manual page;
+* full tests, including integration tests using `ffmpeg`;
+* feature and configuration stability;
+* better output, such as error output;
+* friendlier command-line configuration;
+* the ability to configure text-based subtitles; and
+* the ability to incorporate subtitles from an external file.
+
+
 Installation
 ------------
 
-`video2gif` requires a recent version of [FFmpeg] installed and
-available in the system `$PATH`. If you can run `FFmpeg` from the
-command line, you're probably good. If not, use your favorite package
-manager to install it.
+`video2gif` is a command-line tool requiring both Ruby and a recent
+version of [FFmpeg] installed and available in the system `$PATH`. If
+you can run [FFmpeg] from the command line, you likely have the ability
+to run `video2gif`.
 
-Note that some features may not be available by default. For example,
+Note that some features may not work by default. For example,
 tonemapping (used for HDR videos) requires `libzimg` support, not
-included by default in the [FFmpeg] supplied by [Homebrew].
+included by default in the [FFmpeg] supplied by [Homebrew]. If you
+attempt to use it, you will get an error. Additionally, `ffprobe`
+(usually supplied by [FFmpeg]) is required for subtitles and may become
+required in the future for all functionality.
 
 `video2gif` also requires Ruby and the ability to install a new gem. If
 you have this available, run the following command to install it.
@@ -61,4 +83,5 @@ https://github.com/emilyst/video2gif
 
 
 [FFmpeg]: https://ffmpeg.org
+[patch-level version]: https://semver.org
 [Homebrew]: https://brew.sh
