@@ -34,23 +34,14 @@ module Video2gif
       # processing those.
       filtergraph << "fps=#{ options[:fps] || 10 }"
 
-      # Crop if needed, using either settings discovered during the
-      # autocrop run or manually set parameters, so we don't process
-      # additional parts of the image (and exclude it from palette
-      # generation).
-      if options[:autocrop]
-        filtergraph << options[:autocrop]
-      elsif options[:wregion] ||
-            options[:hregion] ||
-            options[:xoffset] ||
-            options[:yoffset]
-        filtergraph << 'crop=' + [
-          "w=#{ options[:wregion] || 'in_w' }",
-          "h=#{ options[:hregion] || 'in_h' }",
-          "x=#{ options[:xoffset] || 0 }",
-          "y=#{ options[:yoffset] || 0 }",
-        ].join(':')
-      end
+      # Apply automatic cropping discovered during the cropdetect run.
+      filtergraph << options[:autocrop] if options[:autocrop]
+
+      # Apply manual cropping, if any.
+      filtergraph << "crop=w=#{options[:wregion]}" if options[:wregion]
+      filtergraph << "crop=h=#{options[:hregion]}" if options[:hregion]
+      filtergraph << "crop=x=#{options[:xoffset]}" if options[:xoffset]
+      filtergraph << "crop=y=#{options[:yoffset]}" if options[:yoffset]
 
       # Scale here before other filters to avoid unnecessary processing.
       if options[:tonemap]
