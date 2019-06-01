@@ -5,28 +5,29 @@ module Video2gif
   module FFmpeg
     CROP_REGEX = /crop=([0-9]+\:[0-9]+\:[0-9]+\:[0-9]+)/
 
+    # TODO: This whole method needs to be broken up significantly.
     def self.filtergraph(options)
       filtergraph = []
 
-      if options[:subtitles] && options[:probe_infos][:streams].any? do |s|
-        s[:codec_type] == 'subtitle'
-      end
+      # If we want subtitles and *have* subtitles, we need some info to
+      # use them.
+      if options[:subtitles] && options[:probe_infos][:streams].any? { |s| s[:codec_type] == 'subtitle' }
         video_info = options[:probe_infos][:streams].find { |s| s[:codec_type] == 'video' }
         subtitle_info = options[:probe_infos][:streams].find_all { |s| s[:codec_type] == 'subtitle' }[options[:subtitle_index]]
+      end
 
-        if Subtitles::KNOWN_TEXT_FORMATS.include?(subtitle_info[:codec_name])
-          filtergraph << "setpts=PTS+#{Utils.duration_to_seconds(options[:seek])}/TB"
-          filtergraph << "subtitles='#{options[:input_filename]}':si=#{options[:subtitle_index]}"
-          filtergraph << 'setpts=PTS-STARTPTS'
-        elsif Subtitles::KNOWN_BITMAP_FORMATS.include?(subtitle_info[:codec_name])
-          filtergraph << "[0:s:#{options[:subtitle_index]}]scale=" + %W[
-            flags=lanczos
-            sws_dither=none
-            width=#{video_info[:width]}
-            height=#{video_info[:height]}
-          ].join(':') + '[subs]'
-          filtergraph << '[0:v][subs]overlay=format=auto'
-        end
+      # Bitmap formatted subtitles go first so that they get scaled
+      # correctly.
+      if options[:subtitles] &&
+          options[:probe_infos][:streams].any? { |s| s[:codec_type] == 'subtitle' } &&
+          Subtitles::KNOWN_BITMAP_FORMATS.include?(subtitle_info[:codec_name])
+        filtergraph << "[0:s:#{options[:subtitle_index]}]scale=" + %W[
+          flags=lanczos
+          sws_dither=none
+          width=#{video_info[:width]}
+          height=#{video_info[:height]}
+        ].join(':') + '[subs]'
+        filtergraph << '[0:v][subs]overlay=format=auto'
       end
 
       # Set 'fps' filter first, drop unneeded frames instead of
@@ -89,6 +90,16 @@ module Video2gif
       filtergraph << "eq=gamma_r=#{options[:gamma_r]}"       if options[:gamma_r]
       filtergraph << "eq=gamma_g=#{options[:gamma_g]}"       if options[:gamma_g]
       filtergraph << "eq=gamma_b=#{options[:gamma_b]}"       if options[:gamma_b]
+
+      # Embed text subtitles later so that they don't get processed by
+      # cropping, etc., which might accidentally crop them out.
+      if options[:subtitles] &&
+          options[:probe_infos][:streams].any? { |s| s[:codec_type] == 'subtitle' } &&
+          Subtitles::KNOWN_TEXT_FORMATS.include?(subtitle_info[:codec_name])
+        filtergraph << "setpts=PTS+#{Utils.duration_to_seconds(options[:seek])}/TB"
+        filtergraph << "subtitles='#{options[:input_filename]}':si=#{options[:subtitle_index]}"
+        filtergraph << 'setpts=PTS-STARTPTS'
+      end
 
       # If there is text to superimpose, do it here before palette
       # generation to ensure the color looks appropriate.
