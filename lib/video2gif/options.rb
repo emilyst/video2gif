@@ -68,22 +68,26 @@ module Video2gif
           end
         end
 
-        parser.on('--crop-size-w SIZE',
+        parser.on('--crop-width SIZE',
+                  '--crop-size-w SIZE',
                   'Pixel size of width to select from source video, before scaling') do |s|
           options[:wregion] = s
         end
 
-        parser.on('--crop-size-h SIZE',
+        parser.on('--crop-height SIZE',
+                  '--crop-size-h SIZE',
                   'Pixel size of height to select from source video, before scaling') do |s|
           options[:hregion] = s
         end
 
-        parser.on('--crop-offset-x OFFSET',
+        parser.on('--crop-x OFFSET',
+                  '--crop-offset-x OFFSET',
                   'Pixel offset from left to select from source video, before scaling') do |o|
           options[:xoffset] = o
         end
 
-        parser.on('--crop-offset-y OFFSET',
+        parser.on('--crop-y OFFSET',
+                  '--crop-offset-y OFFSET',
                   'Pixel offset from top to select from source video, before scaling') do |o|
           options[:yoffset] = o
         end
@@ -257,7 +261,7 @@ module Video2gif
         exit
       end
 
-      options[:input_filename] = args[0]
+      options[:input_filename]  = args[0]
       options[:output_filename] = if args[1]
                                     args[1].end_with?('.gif') ? args[1] : args[1] + '.gif'
                                   else
