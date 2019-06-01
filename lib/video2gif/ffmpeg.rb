@@ -123,13 +123,20 @@ module Video2gif
       # generate a palette from the stream using the specified number of
       # colors and optimizing for moving objects in the stream. Label
       # this stream's output as "palette."
-      filtergraph << "[palettegen]palettegen=#{options[:palette] || 256}:stats_mode=diff[palette]"
+      filtergraph << '[palettegen]palettegen=' + %W[
+        #{options[:palette] || 256}
+        stats_mode=#{options[:palettemode] || 'diff'}
+      ].join(':') + '[palette]'
 
       # Using a copy of the stream from the 'split' filter and the
       # generated palette as inputs, apply the final palette to the GIF.
       # For non-moving parts of the GIF, attempt to reuse the same
       # palette from frame to frame.
-      filtergraph << "[paletteuse][palette]paletteuse=dither=#{options[:dither] || 'floyd_steinberg'}:diff_mode=rectangle"
+      filtergraph << '[paletteuse][palette]paletteuse=' + %W[
+        dither=#{options[:dither] || 'floyd_steinberg'}
+        diff_mode=rectangle
+        #{options[:palettemode] == 'single' ? 'new=1' : ''}
+      ].join(':')
     end
 
     def self.ffprobe_command(options, logger, executable: 'ffprobe')

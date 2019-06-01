@@ -57,6 +57,17 @@ module Video2gif
           options[:palette] = p
         end
 
+        parser.on('--palette-mode MODE',
+                  '--palettemode MODE',
+                  'Configure a custom palette statistics mode, using either',
+                  '"full" (single full-frame palette for the whole GIF),',
+                  '"diff" (single palette emphasizing movement against a',
+                  'static background across frames), or',
+                  '"single" (individual palette per frame, adds to file size)',
+                  '(default "diff")') do |p|
+          options[:palettemode] = p
+        end
+
         parser.on('-d [ALGORITHM]',
                   '--[no-]dither [ALGORITHM]',
                   'Set the dithering algorithm for the palette generation',
