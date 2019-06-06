@@ -37,11 +37,12 @@ module Video2gif
       # Apply automatic cropping discovered during the cropdetect run.
       filtergraph << options[:autocrop] if options[:autocrop]
 
-      # Apply manual cropping, if any.
-      filtergraph << "crop=w=#{options[:wregion]}" if options[:wregion]
-      filtergraph << "crop=h=#{options[:hregion]}" if options[:hregion]
-      filtergraph << "crop=x=#{options[:xoffset]}" if options[:xoffset]
-      filtergraph << "crop=y=#{options[:yoffset]}" if options[:yoffset]
+      crop = []
+      crop << "w=#{options[:wregion]}" if options[:wregion]
+      crop << "h=#{options[:hregion]}" if options[:hregion]
+      crop << "x=#{options[:xoffset]}" if options[:xoffset]
+      crop << "y=#{options[:yoffset]}" if options[:yoffset]
+      filtergraph << 'crop=' + crop.join(':') unless crop.empty?
 
       # Scale here before other filters to avoid unnecessary processing.
       if options[:tonemap]
