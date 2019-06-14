@@ -163,6 +163,9 @@ module Video2gif
       command << '-ss' << options[:seek] if options[:seek]
       command << '-t' << options[:time] if options[:time]
       command << '-i' << options[:input_filename]
+      command << '-an'
+      command << '-sn'
+      command << '-dn'
     end
 
     def self.cropdetect_command(options, logger, executable: 'ffmpeg')
