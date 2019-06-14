@@ -11,9 +11,11 @@ module Video2gif
 
       # If we want subtitles and *have* subtitles, we need some info to
       # use them.
+      video_info = options[:probe_infos][:streams].find { |s| s[:codec_type] == 'video' }
       if options[:subtitles] && options[:probe_infos][:streams].any? { |s| s[:codec_type] == 'subtitle' }
-        video_info = options[:probe_infos][:streams].find { |s| s[:codec_type] == 'video' }
-        subtitle_info = options[:probe_infos][:streams].find_all { |s| s[:codec_type] == 'subtitle' }[options[:subtitle_index]]
+        subtitle_info = options[:probe_infos][:streams]
+          .find_all { |s| s[:codec_type] == 'subtitle' }
+          .fetch(options[:subtitle_index], nil)
       end
 
       # Bitmap formatted subtitles go first so that they get scaled

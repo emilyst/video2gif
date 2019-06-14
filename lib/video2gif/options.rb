@@ -165,11 +165,6 @@ module Video2gif
                   'resulting GIF. May be extremely slow for text subtitles.',
                   'Takes an optional integer value to choose the subtitle',
                   'stream (defaults to the first subtitle stream, index 0)') do |s|
-          unless Utils.is_executable?('ffprobe')
-            puts 'ERROR: Requires FFmpeg utils to be installed (for ffprobe)!'
-            exit 1
-          end
-
           options[:subtitles] = s || true
           options[:subtitle_index] =  if options[:subtitles].is_a?(TrueClass)  # default to first stream
                                         0
@@ -252,11 +247,6 @@ module Video2gif
       end
 
       parser.parse!
-
-      unless Utils.is_executable?('ffmpeg')
-        puts 'ERROR: Requires FFmpeg to be installed!'
-        exit 1
-      end
 
       if args.size < 1 || args.size > 2
         puts 'ERROR: Specify one video to convert at a time!'

@@ -33,15 +33,13 @@ Installation
 
 `video2gif` is a command-line tool requiring both Ruby and a recent
 version of [FFmpeg] installed and available in the system `$PATH`. If
-you can run [FFmpeg] from the command line, you likely have the ability
-to run `video2gif`.
+you can run `ffmpeg` and `ffprobe` from the command line, you likely
+have the ability to run `video2gif`.
 
 Note that some features may not work by default. For example,
 tonemapping (used for HDR videos) requires `libzimg` support, not
 included by default in the [FFmpeg] supplied by [Homebrew]. If you
-attempt to use it, you will get an error. Additionally, `ffprobe`
-(usually supplied by [FFmpeg]) is required for subtitles and may become
-required in the future for all functionality.
+attempt to use it, you will get an error.
 
 `video2gif` also requires Ruby and the ability to install a new gem. If
 you have this available, run the following command to install it.
