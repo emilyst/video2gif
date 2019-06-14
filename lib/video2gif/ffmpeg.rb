@@ -32,7 +32,24 @@ module Video2gif
         filtergraph << '[0:v][subs]overlay=format=auto'
       end
 
-      # Set 'fps' filter first, drop unneeded frames instead of
+      # Slow down or speed up video as early as possible so that we
+      # don't end up trying to interpolate frames in that we already
+      # dropped.
+      if options[:rate]
+        filtergraph << "setpts=PTS/#{options[:rate]}" if options[:rate]
+        if Float(options[:rate]) < 1  # interpolate slowed down video
+          minterpolate = []
+          minterpolate << 'mi_mode=mci'
+          minterpolate << 'mc_mode=aobmc'
+          minterpolate << 'me_mode=bidir'
+          minterpolate << 'me=epzs'
+          minterpolate << 'vsbmc=1'
+          minterpolate << "fps=#{video_info[:avg_frame_rate] }/#{options[:rate]}"
+          filtergraph << 'minterpolate=' + minterpolate.join(':')
+        end
+      end
+
+      # Set 'fps' filter early, drop unneeded frames instead of
       # processing those.
       filtergraph << "fps=#{ options[:fps] || 10 }"
 

@@ -176,6 +176,15 @@ module Video2gif
                                       end
         end
 
+        parser.on('-r MULTIPLIER',
+                  '--rate MULTIPLIER',
+                  '--speed MULTIPLIER',
+                  '(Experimental, SLOW) Multiplier for the speed of the',
+                  'GIF, where less than 1 indicates a lower speed and',
+                  'greater than 1 indicates a faster speed (default 1)') do |r|
+          options[:rate] = r
+        end
+
         parser.separator ''
         parser.separator 'Text overlay options (only used if text is defined):'
 
