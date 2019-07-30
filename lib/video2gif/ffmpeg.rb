@@ -40,7 +40,7 @@ module Video2gif
     end
 
     def self.fps(options)
-      "fps=#{ options[:fps] || 10 }"
+      "fps=#{ options[:fps] || 20 }"
     end
 
     def self.crop(options)
@@ -59,8 +59,8 @@ module Video2gif
 
       zscale_parameters << 'dither=none'
       zscale_parameters << 'filter=lanczos'
-      zscale_parameters << "width=#{ options[:width] || 400 }"
-      zscale_parameters << "height=trunc(#{ options[:width] || 400 }/dar)"
+      zscale_parameters << "width=#{ options[:width] || 480 }"
+      zscale_parameters << "height=trunc(#{ options[:width] || 480 }/dar)"
 
       'zscale=' + zscale_parameters.join(':')
     end
@@ -92,8 +92,8 @@ module Video2gif
 
         scale_parameters << 'flags=lanczos'
         scale_parameters << 'sws_dither=none'
-        scale_parameters << "width=#{ options[:width] || 400 }"
-        scale_parameters << "height=trunc(#{ options[:width] || 400 }/dar)"
+        scale_parameters << "width=#{ options[:width] || 480 }"
+        scale_parameters << "height=trunc(#{ options[:width] || 480 }/dar)"
 
         'scale=' + scale_parameters.join(':')
       end
@@ -131,7 +131,7 @@ module Video2gif
         drawtext_parameters << "y='#{ options[:ypos] || "(main_h-line_h*1.5*#{count_of_lines})" }'"
         drawtext_parameters << "fontsize='#{ options[:textsize] || 32 }'"
         drawtext_parameters << "fontcolor='#{ options[:textcolor] || 'white' }'"
-        drawtext_parameters << "borderw='#{ options[:textborder] || 1 }'"
+        drawtext_parameters << "borderw='#{ options[:textborder] || 2 }'"
         drawtext_parameters << "fontfile='#{ options[:textfont] || 'Arial'}'\\\\:style='#{options[:textvariant] || 'Bold' }'"
         drawtext_parameters << "text='#{text(options)}'"
 
