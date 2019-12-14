@@ -67,12 +67,10 @@ module Video2gif
 
     def self.tonemap(options)
       %W[
-        zscale=transfer=linear:npl=100
-        format=gbrpf32le
-        zscale=primaries=bt709
-        tonemap=tonemap=#{options[:tonemap]}:param=1.0:desat=0:peak=10
-        zscale=transfer=bt709:matrix=bt709:range=tv
-        format=yuv420p
+        zscale=transfer=linear
+        tonemap=tonemap=#{options[:tonemap]}
+        zscale=transfer=bt709
+        format=gbrp
       ]
     end
 
