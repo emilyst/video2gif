@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    video2gif (0.0.36)
+    video2gif (0.0.38)
 
 GEM
   remote: https://rubygems.org/
@@ -13,20 +13,20 @@ GEM
     pry (0.12.2)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
-    rake (10.5.0)
-    rspec (3.8.0)
-      rspec-core (~> 3.8.0)
-      rspec-expectations (~> 3.8.0)
-      rspec-mocks (~> 3.8.0)
-    rspec-core (3.8.0)
-      rspec-support (~> 3.8.0)
-    rspec-expectations (3.8.2)
+    rake (12.3.3)
+    rspec (3.9.0)
+      rspec-core (~> 3.9.0)
+      rspec-expectations (~> 3.9.0)
+      rspec-mocks (~> 3.9.0)
+    rspec-core (3.9.1)
+      rspec-support (~> 3.9.1)
+    rspec-expectations (3.9.0)
       diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.8.0)
-    rspec-mocks (3.8.0)
+      rspec-support (~> 3.9.0)
+    rspec-mocks (3.9.1)
       diff-lcs (>= 1.2.0, < 2.0)
-      rspec-support (~> 3.8.0)
-    rspec-support (3.8.0)
+      rspec-support (~> 3.9.0)
+    rspec-support (3.9.2)
 
 PLATFORMS
   ruby
@@ -35,9 +35,9 @@ DEPENDENCIES
   bundler (~> 2.0)
   climate_control (~> 0.1)
   pry
-  rake (~> 10.0)
+  rake (~> 12.0)
   rspec (~> 3.0)
   video2gif!
 
 BUNDLED WITH
-   2.0.1
+   2.1.2
